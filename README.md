@@ -1,2 +1,13 @@
-### CR - Code Reader
-CR is a github code reader designed to read and comment code easily and efficiently on mobile devices such as IPADs and cell phones. Can be serverless, you can also configure the interface to store comments and other data.
+## CR - Code Reader
+CR的初衷是为了能够高效便捷的在任何移动设备上阅读github等开源代码。
+
+------------
+
+#### CR具有如下功能
+1. 良好的目录树、代码临时缓存及加载机制。
+2. 代码批注，本地存储于localStorage，可配置CURD接口。
+3. 多语言代码高亮支持。
+4. 可对主题及字体等进行配置。
+
+
+© 2017 echosoar
