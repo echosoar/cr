@@ -2,6 +2,10 @@
 'use strict';
 
 /** Virtual DOM Node */
+/** Global options
+ *	@public
+ *	@namespace options {Object}
+ */
 var options = {
 
 	/** If `true`, `prop` changes trigger synchronous component updates.
@@ -26,6 +30,13 @@ var options = {
 	// beforeUnmount(component) { }
 };
 
+/**
+ *  Copy all properties from `props` onto `obj`.
+ *  @param {Object} obj		Object onto which properties should be copied.
+ *  @param {Object} props	Object from which to copy properties.
+ *  @returns obj
+ *  @private
+ */
 function extend(obj, props) {
   for (var i in props) {
     obj[i] = props[i];
@@ -41,12 +52,7 @@ function extend(obj, props) {
  */
 var defer = typeof Promise == 'function' ? Promise.resolve().then.bind(Promise.resolve()) : setTimeout;
 
-/**
- * Clones the given VNode, optionally adding attributes/props and replacing its children.
- * @param {VNode} vnode		The virutal DOM element to clone
- * @param {Object} props	Attributes/props to add when cloning
- * @param {VNode} rest		Any additional arguments will be used as replacement children.
- */
+// DOM properties that should NOT have "px" added when numeric
 var IS_NON_DIMENSIONAL = /acit|ex(?:s|g|n|p|$)|rph|ows|mnc|ntw|ine[ch]|zoo|^ord/i;
 
 /** Managed queue of dirty components to be re-rendered */
@@ -895,9 +901,6 @@ function render(vnode, parent, merge) {
   return diff(merge, vnode, {}, false, parent, false);
 }
 
-
-//# sourceMappingURL=preact.esm.js.map
-
 'use strict';
 var Base = (function (Component$$1) {
   function Base(props) {
@@ -1109,6 +1112,9 @@ var Create = (function (Component$$1) {
 var global$1 = typeof global !== "undefined" ? global :
             typeof self !== "undefined" ? self :
             typeof window !== "undefined" ? window : {};
+
+// shim for using process in browser
+// based off https://github.com/defunctzombie/node-process/blob/master/browser.js
 
 function defaultSetTimout() {
     throw new Error('setTimeout has not been defined');
@@ -2942,10 +2948,22 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ ])
 });
 
-//# sourceMappingURL=axios.map
+
 });
 
 'use strict';
+/**
+ * Tree的格式
+ * 存储在 crTree 里面
+ * 第一级为分支hash
+ * 第二级为项
+ * {
+ *  [hash]: {
+ *    childHash: []
+ *  }
+ * }
+ */
+
 var Toc = (function (Component$$1) {
   function Toc(props) {
     Component$$1.call(this, props);
@@ -3919,6 +3937,15 @@ var toString = {}.toString;
 var isArray = Array.isArray || function (arr) {
   return toString.call(arr) == '[object Array]';
 };
+
+/*!
+ * The buffer module from node.js, for the browser.
+ *
+ * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+ * @license  MIT
+ */
+/* eslint-disable no-proto */
+
 
 var INSPECT_MAX_BYTES = 50;
 
@@ -5732,6 +5759,8 @@ EventHandlers.prototype = Object.create(null);
 function EventEmitter() {
   EventEmitter.init.call(this);
 }
+// nodejs oddity
+// require('events') === require('events').EventEmitter
 EventEmitter.EventEmitter = EventEmitter;
 
 EventEmitter.usingDomains = false;
@@ -6219,6 +6248,26 @@ if (typeof Object.create === 'function'){
 }
 var inherits$1 = inherits;
 
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
 var formatRegExp = /%[sdj%]/g;
 function format(f) {
   var arguments$1 = arguments;
@@ -6703,6 +6752,7 @@ function objectToString(o) {
 }
 
 
+// log is just a thin wrapper to console.log that prepends a timestamp
 
 
 
@@ -8614,6 +8664,9 @@ Stream$1.PassThrough = PassThrough$1;
 
 // Backwards-compat with node 0.4.x
 Stream$1.Stream = Stream$1;
+
+// old-style streams.  Note that the pipe method (the only relevant
+// part of this class) is overridden in the Readable class.
 
 function Stream$1() {
   EventEmitter.call(this);
