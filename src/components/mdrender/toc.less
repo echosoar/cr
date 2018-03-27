@@ -1,0 +1,59 @@
+
+.toc-main {
+  padding: 0 20px;
+  padding-top: 20px;
+  overflow: auto;
+  white-space: nowrap;
+
+  .toc-container {
+    
+  }
+
+  .toc-button {
+    height: 24px;
+    display: inline-block;
+    padding: 0 10px;
+    line-height: 24px;
+    border: 1px solid #396;
+    color: #396;
+    font-size: 13px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+
+  .toc-item {
+    position: relative;
+    display: block;
+    font-size: 12px;
+    color: #36c;
+    line-height: 20px;
+
+    &:hover {
+      color: #709;
+      text-decoration: underline;
+    }
+
+    .toc-item-left {
+      display: block;
+      position: absolute;
+      left: 0;
+      top: 9px;
+      border-bottom: 1px solid #333;
+    }
+  }
+
+  .toc-child {
+    position: relative;
+    padding: 0;
+    margin: 5px 0;
+    padding-left: 16px;
+    &::before {
+      content: ' ';
+      position: absolute;
+      left: 2px;
+      width: 2px;
+      background: #9c9;
+      height: 100%;
+    }
+  }
+}

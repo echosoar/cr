@@ -5,17 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="format-detection" content="telephone=no, email=no" />
     <title>Code Reader</title>
-    <link rel="stylesheet" type="text/css" href="../build/index.css" />
+    <link rel="stylesheet" type="text/css" href="./build/index.css" />
   </head>
   <body>
     <div id="container"></div>
   </body>
-  <script src="../libs/highlight.min.js"></script>
-  <script src="../libs/marked.min.js"></script>
-  <script src="//cdn.staticfile.org/preact/8.1.0/preact.min.js"></script>
+  <script src="./libs/highlight.min.js"></script>
+  <script src="./libs/marked.min.js"></script>
+  <script src="./libs/preact.min.js"></script>
   <script>
     React = preact;
     React.Children = { only:function(c){return c[0]} };
   </script>
-  <script src="../build/index.js"></script>
+  <script src="./build/index.js"></script>
 </html>

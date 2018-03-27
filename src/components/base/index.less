@@ -2,13 +2,19 @@ body {
   margin: 0;
 }
 .title {
+  position: fixed;
+  top: 0;
+  z-index: 2;
+  width: 100%;
   line-height: 36px;
   font-size: 13px;
   color: #999;
   text-align: center;
   border-bottom: 1px solid #eee;
+  background: #fff;
 }
 .main {
+  padding-top: 36px;
   .copyright {
     font-size: 12px;
     border-top: 1px solid #eee;
@@ -16,5 +22,29 @@ body {
     text-align: center;
     line-height: 32px;
   }
+}
+
+.return {
+  position: fixed;
+  z-index: 3;
+  top: 0;
+  left: 0;
+  line-height: 36px;
+  width: 72px;
+  box-sizing: border-box;
+  border-right: 1px solid #eee;
+  text-align: center;
+  font-size: 13px;
+  color: #666;
+}
+
+.listContainer {
+  margin: 0px auto;
+  width: 100%;
+  box-sizing: border-box;
+  max-width: 480px;
+  border: 0;
+  border-left: 1px solid #eee;
+  border-right: 1px solid #eee;
 }
 

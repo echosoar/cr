@@ -23,15 +23,23 @@ class Base extends Component {
     let nowMatchChildLength = 0;
     let nowChild = [];
     let noMatterChild = [];
+    let home = {};
 
     this.props.children.map((e, eIndex) => {
       let path = e.attributes && e.attributes.path || '';
+
+      if (e.attributes && e.attributes.home) {
+        home.ele = e;
+        home.index = eIndex;
+        return;
+      }
 
       if (!path) { // no matter match path
         noMatterChild.push({
           index: eIndex,
           ele: e
         });
+        return;
       }
 
       let pathArr = path.replace(/^(#\/|\/)/, '').replace(/\/$/, '').split('/');
@@ -41,12 +49,14 @@ class Base extends Component {
       if (pathArr.length > nowPath.length) return;
 
       pathArr.map((pathItem, pathIndex) => {
-        if (pathItem == nowPath[pathIndex]) {
-          nowMatch ++;
-        } else if (/^:(.*)$/.test(pathItem)) {
-          nowMatch ++;
-          let param = /^:(.*)$/.exec(pathItem)[1];
-          nowParam[param] = nowPath[pathIndex];
+        if (nowMatch == pathIndex) {
+          if (pathItem == nowPath[pathIndex]) {
+            nowMatch ++;
+          } else if (/^:(.*)$/.test(pathItem)) {
+            nowMatch ++;
+            let param = /^:(.*)$/.exec(pathItem)[1];
+            nowParam[param] = nowPath[pathIndex];
+          }
         }
       });
 
@@ -66,7 +76,10 @@ class Base extends Component {
       }
     });
 
-    
+    if (!nowChild.length && home.ele) {
+      nowChild = [home];
+    }
+
     let display = nowChild.concat(noMatterChild).sort((a, b) => {
         return a.index - b.index
     }).map(item => {
@@ -75,7 +88,6 @@ class Base extends Component {
       ele.attributes.urlParams = item.param;
       return item.ele;
     });
-
 
     this.setState({
       nowChild: display

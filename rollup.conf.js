@@ -1,6 +1,7 @@
 import path from 'path'
 import buble from 'rollup-plugin-buble'
 import cjs from 'rollup-plugin-commonjs'
+import builtins from 'rollup-plugin-node-builtins';
 import globals from 'rollup-plugin-node-globals'
 import replace from 'rollup-plugin-replace'
 import resolve from 'rollup-plugin-node-resolve'
@@ -25,8 +26,9 @@ export default {
       include: 'node_modules/**'
     }),
     buble(),
+    
     globals(),
-
+    builtins(),
     replace({ 'process.env.NODE_ENV': JSON.stringify('development') , 'React.createElement': 'preact.h'})
   ],
   sourcemap: true

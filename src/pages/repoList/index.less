@@ -1,0 +1,38 @@
+.repoList {
+  a {
+    text-decoration: none;
+    &.add {
+      display: block;
+      position: fixed;
+      z-index: 3;
+      top: 0;
+      right: 0;
+      line-height: 36px;
+      width: 96px;
+      text-align: center;
+      font-size: 13px;
+      color: #666;
+    }
+  }
+
+  .listItem {
+    display: block;
+    border-bottom: 1px solid #eee;
+    padding: 12px;
+    &:last-child {
+      border-bottom: 0;
+    }
+
+    .listName {
+      line-height: 24px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+    }
+    .listInfo {
+      line-height: 24px;
+      font-size: 12px;
+      color: #666;
+    }
+  }
+}
