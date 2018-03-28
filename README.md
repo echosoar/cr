@@ -11,10 +11,10 @@ https://cr.js.org
 #### To-do
 - [x] Load repositories and branch
 - [x] Add branch by commit
-- [ ] Add branch by sha
-- [ ] Add repo and branch by url 
-  - [ ] By https://cr.js.org/#/.../:user/:repo/...
-  - [ ] By https://cr.js.org/#/.../:user/:repo/:sha/...
+- [x] Add branch by sha
+- [x] Add repo and branch by url 
+  - [x] By https://cr.js.org/#/.../:user/:repo/...
+  - [x] By https://cr.js.org/#/.../:user/:repo/:sha/...
 - [x] Add repo filter the same sha
 - [x] Markdown resolve
 - [x] Markdown relative image
@@ -32,5 +32,6 @@ https://cr.js.org
 - [x] Download or skip to github for not support file 
 - [ ] Delete repo
 - [ ] Delete branch
+- [ ] GitStar button 
 
 © 2018 echosoar
