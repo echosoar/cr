@@ -45,6 +45,9 @@ body {
   border-left: 1px solid #eee;
   border-right: 1px solid #eee;
 }
+a {
+  text-decoration: none;
+}
 .confirmContainer {
   position: fixed;
   top: 0;
@@ -58,7 +61,7 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 60%;
+  width: 72%;
   max-width: 320px;
   max-height: 100%;
   background: #fff;
@@ -103,6 +106,20 @@ body {
   padding: 12px;
   max-height: 96px;
   overflow: auto;
+}
+.confirmContainer .content .confirmTip {
+  margin: 10px;
+  padding: 6px;
+  border: 1px solid #eee;
+  border-radius: 3px;
+  background-color: #f5f5f5;
+  color: #69f;
+  font-size: 12px;
+  user-select: none;
+  text-align: center;
+  line-height: 20px;
+  cursor: pointer;
+  text-decoration: none;
 }
 .create textarea {
   display: block;
@@ -361,6 +378,15 @@ body {
   line-height: 1.5;
   word-wrap: break-word;
   padding: 20px;
+}
+.mdtextrender .githubhref {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 2px;
+  border: 0;
+  vertical-align: middle;
+  background: url('//gw.alicdn.com/tfs/TB1T0S.g49YBuNjy0FfXXXIsVXa-32-32.png') center / contain no-repeat;
 }
 .mdtextrender a {
   background-color: transparent;
@@ -834,6 +860,30 @@ body {
   text-align: center;
   color: #999;
   font-size: 12px;
+}
+.componentCode .notSupport {
+  padding: 20px 0;
+}
+.componentCode .notSupport .notSupportTip {
+  margin: 10px;
+  font-size: 12px;
+  text-align: center;
+  color: #c33;
+}
+.componentCode .notSupport .toDownload {
+  display: inline-block;
+  margin: 10px;
+  padding: 6px 20px;
+  border: 1px solid #eee;
+  border-radius: 3px;
+  background-color: #f5f5f5;
+  color: #69f;
+  font-size: 12px;
+  user-select: none;
+  text-align: center;
+  line-height: 20px;
+  cursor: pointer;
+  text-decoration: none;
 }
 .code .codeContent {
   margin: 0px auto;

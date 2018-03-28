@@ -3,56 +3,15 @@ import { Component } from 'preact'; /** @jsx h */
 import path from 'path';
 import './text.less';
 
-marked.setOptions({
-  highlight: function (code) {
-    return hljs.highlightAuto(code).value;
-  }
-});
 
-var renderer = new marked.Renderer();
-renderer.listitem = function(text) {
-if (/^\s*\[[x ]\]\s*/.test(text)) {
-text = text
-  .replace(/^\s*\[ \]\s*/, '<i class="empty checkbox icon"></i> ')
-  .replace(/^\s*\[x\]\s*/, '<i class="checked checkbox icon"></i> ');
-    return '<li style="list-style: none">' + text + '</li>';
-  } else {
-    return '<li>' + text + '</li>';
-  }
-};
-
-
-var toc = [];
-
-renderer.heading = function(text, level, raw) {
-    var anchor = this.options.headerPrefix + raw.toLowerCase().replace(/[^\w\u4e00-\u9fa5]+/g, '-');
-    toc.push({
-        anchor: anchor,
-        level: level,
-        text: text
-    });
-    return '<h'
-        + level
-        + ' id="'
-        + anchor
-        + '">'
-        + text
-        + (level < 4 ? '<a class="returnToToc" onclick="mdTocClick()">TOC</a>' : '')
-        + '</h'
-        + level
-        + '>\n';
-};
-
-marked.setOptions({
-  gfm: true,
-  tables: true,
-  breaks: true
-});
+let githubRepoReg = /github\.com\/(.*?)\/(.*?)(?:\/|$)/i;
 
 class TextRender extends Component {
   
   constructor(props) {
     super(props);
+    this.toc = [];
+    this.markedConfig();
   }
 
   shouldComponentUpdate(newProps) {
@@ -60,7 +19,7 @@ class TextRender extends Component {
   }
 
   componentDidMount() {
-    this.props.toc && this.props.toc(toc);
+    this.props.toc && this.props.toc(this.toc);
     let ele = document.getElementById('mdtextrender');
     ele.onclick = this.handleClick.bind(this, ele);
   }
@@ -81,19 +40,33 @@ class TextRender extends Component {
     e.stopPropagation();
     
     if (/(?:http[s]?\/|\/\/)/i.test(link)) { // outer
-      window.crConfirm && window.crConfirm(<div>
+
+      let gitRepoLink = null;
+
+      if (githubRepoReg.test(link)) {
+        let gitinfo = githubRepoReg.exec(link);
+        gitRepoLink = '#/branch/' + gitinfo[1] + '/' + gitinfo[2].replace(/#.*$/i, '');
+      }
+
+      window.crConfirm && window.crConfirm.open(<div>
         <div class="confirmTitle">Open Link</div>
         <div class="confirmText">{ link }</div>
+        { gitRepoLink && <div class="confirmTip" onClick={() => {
+            window.crConfirm.close();
+            location.href = gitRepoLink;
+          }}>
+          This is a github repo<br />
+          Add this repo to your cr list?
+        </div> }
       </div>, {
-          text: 'Open',
+          text: 'Open Link',
           handle: () => {
-            console.log("sss", link)
             window.open(link);
           }
       })
     } else if (/^#/.test(link)) { // anchor
 
-    } else {
+    } else { // local
       if (!/^\./.test(link)) link = './' + link;
       link = link.replace(/\\/g, '');
       let nowPath = path.resolve(this.props.fullPath, '../', link).replace(/^\//, '');
@@ -102,29 +75,86 @@ class TextRender extends Component {
   }
 
   componentDidUpdate() {
-    this.props.toc && this.props.toc(toc);
+    this.props.toc && this.props.toc(this.toc);
+    window.scrollTo({top: 0});
   }
 
   formatData(data) {
-    data = data.replace(/<img(.*?)src=['"](.*?)['"]/ig, (preData, match1, src) => {
-      if (!/(?:http[s]?\/|\/\/)/i.test(src)) { // local
-
-        if (!/^\./.test(src)) src = './' + src;
-        src = src.replace(/\\/g, '');
-        let { user, repo, sha } = this.props.repo;
-        src = `//raw.githubusercontent.com/${ user }/${ repo }/${ sha }/` + path.resolve(this.props.fullPath, '../', src).replace(/^\//, '');
-        return '<img ' + match1 + 'src="' + src + '"';
-      }
-      return preData;
+    return data.replace(/<img(.*?)src=['"](.*?)['"]/ig, (preData, match1, src) => {
+      return '<img ' + match1 + 'src="' + this.checkRelativeImgLink(src) + '"';
     });
-    return data;
+  }
+
+  markedConfig() {
+
+    marked.setOptions({
+      highlight: code => {
+        return hljs.highlightAuto(code).value;
+      },
+      gfm: true,
+      tables: true,
+      breaks: true
+    });
+
+    this.renderer = new marked.Renderer();
+    this.renderer.listitem = this.markedRendererTodo.bind(this);
+    this.renderer.heading = this.markedRendererHeading.bind(this);
+    this.renderer.link = this.markedRendererLink.bind(this);
+    this.renderer.image = this.markedRendererImage.bind(this);
+  }
+
+  markedRendererTodo(text) {
+    if (/^\s*\[[x ]\]\s*/.test(text)) {
+    text = text
+      .replace(/^\s*\[ \]\s*/, '<i class="empty checkbox icon"></i> ')
+      .replace(/^\s*\[x\]\s*/, '<i class="checked checkbox icon"></i> ');
+        return '<li style="list-style: none">' + text + '</li>';
+      } else {
+        return '<li>' + text + '</li>';
+      }
+  }
+
+  markedRendererHeading(text, level, raw) {
+    var anchor = raw.toLowerCase().replace(/[^\w\u4e00-\u9fa5]+/g, '-');
+    this.toc.push({
+        anchor: anchor,
+        level: level,
+        text: text
+    });
+    return '<h' + level + ' id="' + anchor + '">'
+        + text + (level < 4 ? '<a class="returnToToc" onclick="mdTocClick()">TOC</a>' : '')
+    + '</h' + level  + '>\n';
+}
+
+  markedRendererLink(href, title, text) {
+    let add = '';
+    if (githubRepoReg.test(href) && !/<[^>]+>/.test(text)) {
+      add += '<i class="githubhref"></i>';
+    }
+
+    return add + '<a target="_blank" href="'+ href +'" title="' + title + '">' + text + '</a>';
+  }
+
+  markedRendererImage(src, title, text) {
+    return `<img src="${ this.checkRelativeImgLink(src) }" alt="${ title }" />`;
+  }
+
+  checkRelativeImgLink(src) {
+    if (!/(?:http[s]?\/|\/\/)/i.test(src)) { // local
+      if (!/^\./.test(src)) src = './' + src;
+      src = src.replace(/\\/g, '');
+      let { user, repo, sha } = this.props.repo;
+      return `//raw.githubusercontent.com/${ user }/${ repo }/${ sha }/` + path.resolve(this.props.fullPath, '../', src).replace(/^\//, '');
+    } else {
+      return src;
+    }
   }
 
   render() {
-    toc = [];
+    this.toc = [];
     let {data} = this.props;
     data = this.formatData(data);
-    return <div class="mdtextrender" id="mdtextrender" dangerouslySetInnerHTML={{__html: marked(data, { renderer: renderer })}} />;
+    return <div class="mdtextrender" id="mdtextrender" dangerouslySetInnerHTML={{__html: marked(data, { renderer: this.renderer })}} />;
   }
 }
 

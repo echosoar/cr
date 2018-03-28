@@ -1,6 +1,7 @@
 'use strict';
 import { Component } from 'preact'; /** @jsx h */
 import Loading from '_/components/loading/index.js';
+import Storage from '_/utils/storage.js';
 import axios from 'axios/dist/axios';
 import './index.less';
 
@@ -9,15 +10,16 @@ class SelectBranch extends Component {
   constructor(props) {
     super(props);
     
+    let { sha } = this.props.urlParams;
 
     this.state = {
-      isLoading: true,
+      isLoading: sha? false: true,
       branches: null,
       commits: null,
-      nowType: 'Branch'
+      nowType: sha? 'Hash' : 'Branch'
     }
 
-    this.getBranch();
+    !sha && this.getBranch();
   }
 
   getBranch() {
@@ -62,35 +64,8 @@ class SelectBranch extends Component {
   }
 
   addCommit(name, sha) {
-    let repoList = {};
     let {user, repo} = this.props.urlParams;
-    try {
-      let storageData = localStorage.getItem('crRepoList') || '';
-      repoList = JSON.parse(storageData);
-    } catch(e){};
-
-    if (!repoList[user + '/' + repo]) {
-      repoList[user + '/' + repo] = {
-        date: new Date() - 0,
-        branch: [],
-        user,
-        repo
-      };
-    }
-
-    let nowIndex = repoList[user + '/' + repo].branch.indexOf(sha);
-    let insertData = {
-      sha,
-      name,
-      date: new Date() - 0
-    };
-    if (nowIndex != -1) {
-      repoList[user + '/' + repo].branch.splice(nowIndex, 1);
-    }
-    repoList[user + '/' + repo].branch.unshift(insertData);
-    repoList[user + '/' + repo].date = new Date() - 0;
-
-    localStorage.setItem('crRepoList', JSON.stringify(repoList));
+    Storage.BranchAdd(user, repo, name, sha);
     location.href = '#/';
   }
 
@@ -102,12 +77,22 @@ class SelectBranch extends Component {
   }
 
   handleBack() {
-    history.back();
+    // history.back();
+    location.href = '#';
+  }
+
+  addHashHandle() {
+    let ele = document.getElementById('selectBranchTextarea');
+    let sha = ele.value;
+    if (!sha) return;
+    let { user, repo } = this.props.urlParams;
+    Storage.BranchAdd(user, repo, sha, sha);
+    location.href = '#/';
   }
   
   render() {
     let {isLoading, branches, nowType, commits} = this.state;
-    let {user, repo} = this.props.urlParams;
+    let {user, repo, sha} = this.props.urlParams;
     return <div class="selectBranch">
       <div class="title">
         Select{
@@ -140,8 +125,8 @@ class SelectBranch extends Component {
         }
         {
           nowType == 'Hash' && <div class="hash">
-            <textarea placeholder="Please enter the hash" id="selectBranchTextarea"></textarea>
-            <div class="button">Confirm</div>
+            <textarea placeholder="Please enter the hash" id="selectBranchTextarea">{ sha }</textarea>
+            <div class="button" onClick={this.addHashHandle.bind(this)}>Confirm</div>
           </div>
         }
       </div>

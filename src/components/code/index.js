@@ -4,6 +4,9 @@ import axios from 'axios/dist/axios';
 import MdRender from '_/components/mdrender/index.js';
 import Loading from '_/components/loading/index.js';
 import libbase64 from 'libbase64';
+import './index.less';
+
+let SupportFileReg = /(\.(?:gitignore|html|css|js|json|md|xml)|makefile|license)$/i;
 
 class Code extends Component {
 
@@ -40,9 +43,23 @@ class Code extends Component {
     this.setState({
       loading: true
     });
+    if (!SupportFileReg.test(fullPath)) {
+      this.setState({
+        [sha]: {
+          path,
+          data: '',
+          fullPath
+        },
+        loading: false,
+        nowsha: sha,
+        [path]: sha
+      });
+      return;
+    }
     axios.get(`//api.github.com/repos/${user}/${repo}/git/blobs/` + sha)
     .then((response) => {
       let data = libbase64.decode(response.data.content).toString();
+      let path = 'path_' + fullPath.replace(/^\//, '');
       this.setState({
         [sha]: {
           path,
@@ -50,7 +67,8 @@ class Code extends Component {
           fullPath
         },
         loading: false,
-        nowsha: sha
+        nowsha: sha,
+        [path]: sha
       });
     }).catch((error) => {
       console.log("getRemote error", error)
@@ -62,13 +80,20 @@ class Code extends Component {
 
   getRemoteByPath(path) {
     let { user, repo} = this.props.urlParams;
+    if (this.state['path_' + path]) {
+      this.setState({
+        nowsha: this.state['path_' + path]
+      });
+      return;
+    }
     this.setState({
       loading: true
     });
     axios.get(`//api.github.com/repos/${user}/${repo}/contents/` + path)
     .then((response) => {
       let sha = response.data.sha;
-      let data = Base64.atob(response.data.content);
+      let data = libbase64.decode(response.data.content).toString();
+      
       this.setState({
         [sha]: {
           path: response.data.name,
@@ -76,9 +101,11 @@ class Code extends Component {
           fullPath: path
         },
         loading: false,
-        nowsha: sha
+        nowsha: sha,
+        ['path_' + path]: sha
       });
     }).catch((error) => {
+      console.log(error)
       this.setState({
         loading: false
       });
@@ -87,14 +114,28 @@ class Code extends Component {
 
   renderCode() {
     let { nowsha, loading } = this.state;
+    let { user, repo, sha} = this.props.urlParams;
     let data = this.state[nowsha];
     if (!data || loading) return <Loading />;
-    return <MdRender data={ data } repo={this.props.repo} getRemoteByPath={this.getRemoteByPath.bind(this)}/>;
-    return <div>{ data.data }</div>
+    if (/\.md$/i.test(data.fullPath)) {
+      return <MdRender data={ data } repo={this.props.repo} getRemoteByPath={this.getRemoteByPath.bind(this)}/>;
+    } else if(SupportFileReg.test(data.fullPath)) {
+      return <div>{ data.data }</div>
+    } else {
+      return <div class="notSupport">
+        <div class="notSupportTip">{ data.path }</div>
+        <div class="notSupportTip">not support file type</div>
+        <a href={'//github.com/' + user + '/' + repo + '/tree/' + sha +  data.fullPath } class="toDownload" target="_blank" download>Click here to Github</a><br />
+        <a href={'//github.com/' + user + '/' + repo + '/raw/' + sha +  data.fullPath } class="toDownload" target="_blank" download>Click here to Download</a>
+        
+      </div>;
+    }
+    
+    
   }
 
   render() {
-    return <div>{ this.renderCode() }</div>;
+    return <div class="componentCode">{ this.renderCode() }</div>;
   }
 }
 

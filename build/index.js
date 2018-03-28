@@ -901,6 +901,96 @@ function render(vnode, parent, merge) {
   return diff(merge, vnode, {}, false, parent, false);
 }
 
+var Storage = {};
+
+Storage.RepoList = function () {
+  var repoList = {};
+  try {
+    var storageData = localStorage.getItem('crRepoList') || '';
+    repoList = JSON.parse(storageData);
+  } catch(e){}
+  
+  return Object.keys(repoList).map(function (repo) {
+    return repoList[repo];
+  }).sort(function (a, b) {
+    return b.date - a.date;
+  });
+};
+
+Storage.RepoCheck = function (user, repo) {
+  var repoList = {};
+  try {
+    var storageData = localStorage.getItem('crRepoList') || '';
+    repoList = JSON.parse(storageData);
+  } catch(e){}
+  var repoItem = repoList[user + '/' + repo];
+  if (repoItem) { return repoItem; }
+  return false;
+};
+/**
+ * name 为分支名称，添加commit sha或者sha的时候为sha
+ */
+Storage.BranchAdd = function (user, repo, name, sha) {
+  var repoList = {};
+  try {
+    var storageData = localStorage.getItem('crRepoList') || '';
+    repoList = JSON.parse(storageData);
+  } catch(e){}
+
+  if (!repoList[user + '/' + repo]) {
+    repoList[user + '/' + repo] = {
+      date: new Date() - 0,
+      branch: [],
+      user: user,
+      repo: repo
+    };
+  }
+
+  var nowIndex = -1;
+  
+  repoList[user + '/' + repo].branch.map(function (branch, index) {
+    if (branch.sha == sha) {
+      nowIndex = index;
+    }
+  });
+  
+  var insertData = {
+    sha: sha,
+    name: name,
+    date: new Date() - 0
+  };
+  
+  if (nowIndex != -1) {
+    repoList[user + '/' + repo].branch.splice(nowIndex, 1);
+  }
+  repoList[user + '/' + repo].branch.unshift(insertData);
+  repoList[user + '/' + repo].date = new Date() - 0;
+  localStorage.setItem('crRepoList', JSON.stringify(repoList));
+};
+
+Storage.BranchCheck = function (repoItem, sha) {
+  if (!repoItem.branch) { return; }
+  var branch = repoItem.branch.find(function (branch) {
+    if (branch.sha == sha) { return branch; }
+    return false;
+  });
+  return branch;
+};
+
+Storage.checkURL = function () {
+  var nowPath = location.hash || '';
+  nowPath = nowPath.replace(/^(#\/|\/)/, '').replace(/\/$/, '').split('/');
+  if (nowPath.length < 3) { return; }
+  var user = nowPath[1], repo = nowPath[2], sha = nowPath[3] || '';
+
+  var repoExists = Storage.RepoCheck(user, repo);
+  if (!repoExists) { location.href = '#/branch/' + user + '/' + repo; }
+  if (!sha) { return; }
+  var branchExists = Storage.BranchCheck(repoExists, sha);
+  // if repo and sha exists return;
+  if (!branchExists) { location.href = '#/branch/' + user + '/' + repo + '/' + sha; }
+};
+
 'use strict';
 var Base = (function (Component$$1) {
   function Base(props) {
@@ -909,10 +999,9 @@ var Base = (function (Component$$1) {
     this.state = {
       nowChild: []
     };
-    this.filterChildren();
-
-
+    Storage.checkURL();
     window.onhashchange = this.filterChildren.bind(this);
+    this.filterChildren();
   }
 
   if ( Component$$1 ) Base.__proto__ = Component$$1;
@@ -945,11 +1034,18 @@ var Base = (function (Component$$1) {
         return;
       }
 
-      var pathArr = path.replace(/^(#\/|\/)/, '').replace(/\/$/, '').split('/');
+      var pathArrLen = 0;
+      var pathArr = path.replace(/^(#\/|\/)/, '').replace(/\/$/, '').split('/').map(function (path) {
+        if (/^\(.*?\)$/.test(path)) {
+          return path.replace(/(^\(|\)$)/g, '');
+        }
+        pathArrLen ++;
+        return path;
+      });
       var nowMatch = 0;
       var nowParam = {};
 
-      if (pathArr.length > nowPath.length) { return; }
+      if (pathArrLen > nowPath.length) { return; }
 
       pathArr.map(function (pathItem, pathIndex) {
         if (nowMatch == pathIndex) {
@@ -962,7 +1058,7 @@ var Base = (function (Component$$1) {
           }
         }
       });
-
+      
       if (nowMatch > nowMatchChildLength) {
         nowMatchChildLength = nowMatch;
         nowChild = [{
@@ -1000,7 +1096,7 @@ var Base = (function (Component$$1) {
   Base.prototype.render = function render$$1 () {
     return preact.h( 'div', { class: "main" },
       preact.h( 'div', null, this.state.nowChild ),
-      preact.h( 'div', { class: "copyright" }, "© 2018 Code Reader")
+      preact.h( 'div', { class: "copyright" }, "© 2018 Cr.js")
     )
   };
 
@@ -1015,8 +1111,10 @@ var Confirm = (function (Component$$1) {
       isOpen: false,
     };
 
-    window.crConfirm = this.confirm.bind(this);
-    
+    window.crConfirm = {
+      open: this.confirm.bind(this),
+      close: this.onlyClose.bind(this)
+    };
   }
 
   if ( Component$$1 ) Confirm.__proto__ = Component$$1;
@@ -1030,6 +1128,12 @@ var Confirm = (function (Component$$1) {
       ele: ele,
       ok: ok,
       cancel: cancel
+    });
+  };
+
+  Confirm.prototype.onlyClose = function onlyClose () {
+    this.setState({
+      isOpen: false
     });
   };
 
@@ -1083,11 +1187,11 @@ var Create = (function (Component$$1) {
 
     if (value[value.length - 1]!= '/') { value += '/'; }
 
-    var mainMatchReg = /github\.com\/(.*?)\/(.*?)\//i;
+    var mainMatchReg = /github\.com\/(.*?)\/(.*?)(?:\/|$)/i;
     var mainMatchRes = mainMatchReg.exec(value);
     
     if (mainMatchRes[1] && mainMatchRes[2]) {
-      location.href = '#/branch/' + mainMatchRes[1] + '/' + mainMatchRes[2];
+      location.href = '#/branch/' + mainMatchRes[1] + '/' + mainMatchRes[2].replace(/#.*$/i, '');
     } else {
       // error
     }
@@ -3546,55 +3650,13 @@ var substr = 'ab'.substr(-1) === 'b' ?
     };
 
 'use strict';
-marked.setOptions({
-  highlight: function (code) {
-    return hljs.highlightAuto(code).value;
-  }
-});
-
-var renderer = new marked.Renderer();
-renderer.listitem = function(text) {
-if (/^\s*\[[x ]\]\s*/.test(text)) {
-text = text
-  .replace(/^\s*\[ \]\s*/, '<i class="empty checkbox icon"></i> ')
-  .replace(/^\s*\[x\]\s*/, '<i class="checked checkbox icon"></i> ');
-    return '<li style="list-style: none">' + text + '</li>';
-  } else {
-    return '<li>' + text + '</li>';
-  }
-};
-
-
-var toc$1 = [];
-
-renderer.heading = function(text, level, raw) {
-    var anchor = this.options.headerPrefix + raw.toLowerCase().replace(/[^\w\u4e00-\u9fa5]+/g, '-');
-    toc$1.push({
-        anchor: anchor,
-        level: level,
-        text: text
-    });
-    return '<h'
-        + level
-        + ' id="'
-        + anchor
-        + '">'
-        + text
-        + (level < 4 ? '<a class="returnToToc" onclick="mdTocClick()">TOC</a>' : '')
-        + '</h'
-        + level
-        + '>\n';
-};
-
-marked.setOptions({
-  gfm: true,
-  tables: true,
-  breaks: true
-});
+var githubRepoReg = /github\.com\/(.*?)\/(.*?)(?:\/|$)/i;
 
 var TextRender = (function (Component$$1) {
   function TextRender(props) {
     Component$$1.call(this, props);
+    this.toc = [];
+    this.markedConfig();
   }
 
   if ( Component$$1 ) TextRender.__proto__ = Component$$1;
@@ -3606,7 +3668,7 @@ var TextRender = (function (Component$$1) {
   };
 
   TextRender.prototype.componentDidMount = function componentDidMount () {
-    this.props.toc && this.props.toc(toc$1);
+    this.props.toc && this.props.toc(this.toc);
     var ele = document.getElementById('mdtextrender');
     ele.onclick = this.handleClick.bind(this, ele);
   };
@@ -3627,19 +3689,30 @@ var TextRender = (function (Component$$1) {
     e.stopPropagation();
     
     if (/(?:http[s]?\/|\/\/)/i.test(link)) { // outer
-      window.crConfirm && window.crConfirm(preact.h( 'div', null,
+
+      var gitRepoLink = null;
+
+      if (githubRepoReg.test(link)) {
+        var gitinfo = githubRepoReg.exec(link);
+        gitRepoLink = '#/branch/' + gitinfo[1] + '/' + gitinfo[2].replace(/#.*$/i, '');
+      }
+
+      window.crConfirm && window.crConfirm.open(preact.h( 'div', null,
         preact.h( 'div', { class: "confirmTitle" }, "Open Link"),
-        preact.h( 'div', { class: "confirmText" }, link)
+        preact.h( 'div', { class: "confirmText" }, link),
+        gitRepoLink && preact.h( 'div', { class: "confirmTip", onClick: function () {
+            window.crConfirm.close();
+            location.href = gitRepoLink;
+          } }, "This is a github repo", preact.h( 'br', null ), "Add this repo to your cr list?")
       ), {
-          text: 'Open',
+          text: 'Open Link',
           handle: function () {
-            console.log("sss", link);
             window.open(link);
           }
       });
     } else if (/^#/.test(link)) { // anchor
 
-    } else {
+    } else { // local
       if (!/^\./.test(link)) { link = './' + link; }
       link = link.replace(/\\/g, '');
       var nowPath = path.resolve(this.props.fullPath, '../', link).replace(/^\//, '');
@@ -3648,35 +3721,92 @@ var TextRender = (function (Component$$1) {
   };
 
   TextRender.prototype.componentDidUpdate = function componentDidUpdate () {
-    this.props.toc && this.props.toc(toc$1);
+    this.props.toc && this.props.toc(this.toc);
+    window.scrollTo({top: 0});
   };
 
   TextRender.prototype.formatData = function formatData (data) {
     var this$1 = this;
 
-    data = data.replace(/<img(.*?)src=['"](.*?)['"]/ig, function (preData, match1, src) {
-      if (!/(?:http[s]?\/|\/\/)/i.test(src)) { // local
-
-        if (!/^\./.test(src)) { src = './' + src; }
-        src = src.replace(/\\/g, '');
-        var ref = this$1.props.repo;
-        var user = ref.user;
-        var repo = ref.repo;
-        var sha = ref.sha;
-        src = "//raw.githubusercontent.com/" + user + "/" + repo + "/" + sha + "/" + path.resolve(this$1.props.fullPath, '../', src).replace(/^\//, '');
-        return '<img ' + match1 + 'src="' + src + '"';
-      }
-      return preData;
+    return data.replace(/<img(.*?)src=['"](.*?)['"]/ig, function (preData, match1, src) {
+      return '<img ' + match1 + 'src="' + this$1.checkRelativeImgLink(src) + '"';
     });
-    return data;
+  };
+
+  TextRender.prototype.markedConfig = function markedConfig () {
+
+    marked.setOptions({
+      highlight: function (code) {
+        return hljs.highlightAuto(code).value;
+      },
+      gfm: true,
+      tables: true,
+      breaks: true
+    });
+
+    this.renderer = new marked.Renderer();
+    this.renderer.listitem = this.markedRendererTodo.bind(this);
+    this.renderer.heading = this.markedRendererHeading.bind(this);
+    this.renderer.link = this.markedRendererLink.bind(this);
+    this.renderer.image = this.markedRendererImage.bind(this);
+  };
+
+  TextRender.prototype.markedRendererTodo = function markedRendererTodo (text) {
+    if (/^\s*\[[x ]\]\s*/.test(text)) {
+    text = text
+      .replace(/^\s*\[ \]\s*/, '<i class="empty checkbox icon"></i> ')
+      .replace(/^\s*\[x\]\s*/, '<i class="checked checkbox icon"></i> ');
+        return '<li style="list-style: none">' + text + '</li>';
+      } else {
+        return '<li>' + text + '</li>';
+      }
+  };
+
+  TextRender.prototype.markedRendererHeading = function markedRendererHeading (text, level, raw) {
+    var anchor = raw.toLowerCase().replace(/[^\w\u4e00-\u9fa5]+/g, '-');
+    this.toc.push({
+        anchor: anchor,
+        level: level,
+        text: text
+    });
+    return '<h' + level + ' id="' + anchor + '">'
+        + text + (level < 4 ? '<a class="returnToToc" onclick="mdTocClick()">TOC</a>' : '')
+    + '</h' + level  + '>\n';
+};
+
+  TextRender.prototype.markedRendererLink = function markedRendererLink (href, title, text) {
+    var add = '';
+    if (githubRepoReg.test(href) && !/<[^>]+>/.test(text)) {
+      add += '<i class="githubhref"></i>';
+    }
+
+    return add + '<a target="_blank" href="'+ href +'" title="' + title + '">' + text + '</a>';
+  };
+
+  TextRender.prototype.markedRendererImage = function markedRendererImage (src, title, text) {
+    return ("<img src=\"" + (this.checkRelativeImgLink(src)) + "\" alt=\"" + title + "\" />");
+  };
+
+  TextRender.prototype.checkRelativeImgLink = function checkRelativeImgLink (src) {
+    if (!/(?:http[s]?\/|\/\/)/i.test(src)) { // local
+      if (!/^\./.test(src)) { src = './' + src; }
+      src = src.replace(/\\/g, '');
+      var ref = this.props.repo;
+      var user = ref.user;
+      var repo = ref.repo;
+      var sha = ref.sha;
+      return "//raw.githubusercontent.com/" + user + "/" + repo + "/" + sha + "/" + path.resolve(this.props.fullPath, '../', src).replace(/^\//, '');
+    } else {
+      return src;
+    }
   };
 
   TextRender.prototype.render = function render$$1 () {
-    toc$1 = [];
+    this.toc = [];
     var ref = this.props;
     var data = ref.data;
     data = this.formatData(data);
-    return preact.h( 'div', { class: "mdtextrender", id: "mdtextrender", dangerouslySetInnerHTML: {__html: marked(data, { renderer: renderer })} });
+    return preact.h( 'div', { class: "mdtextrender", id: "mdtextrender", dangerouslySetInnerHTML: {__html: marked(data, { renderer: this.renderer })} });
   };
 
   return TextRender;
@@ -8997,6 +9127,8 @@ var libbase64 = {
 };
 
 'use strict';
+var SupportFileReg = /(\.(?:gitignore|html|css|js|json|md|xml)|makefile|license)$/i;
+
 var Code$2 = (function (Component$$1) {
   function Code(props) {
     Component$$1.call(this, props);
@@ -9041,9 +9173,22 @@ var Code$2 = (function (Component$$1) {
     this.setState({
       loading: true
     });
+    if (!SupportFileReg.test(fullPath)) {
+      this.setState(( obj = {
+        loading: false,
+        nowsha: sha
+      }, obj[sha] = {
+          path: path,
+          data: '',
+          fullPath: fullPath
+        }, obj[path] = sha, obj));
+      var obj;
+      return;
+    }
     axios.get("//api.github.com/repos/" + user + "/" + repo + "/git/blobs/" + sha)
     .then(function (response) {
       var data = libbase64.decode(response.data.content).toString();
+      var path = 'path_' + fullPath.replace(/^\//, '');
       this$1.setState(( obj = {
         loading: false,
         nowsha: sha
@@ -9051,7 +9196,7 @@ var Code$2 = (function (Component$$1) {
           path: path,
           data: data,
           fullPath: fullPath
-        }, obj));
+        }, obj[path] = sha, obj));
       var obj;
     }).catch(function (error) {
       console.log("getRemote error", error);
@@ -9067,13 +9212,20 @@ var Code$2 = (function (Component$$1) {
     var ref = this.props.urlParams;
     var user = ref.user;
     var repo = ref.repo;
+    if (this.state['path_' + path]) {
+      this.setState({
+        nowsha: this.state['path_' + path]
+      });
+      return;
+    }
     this.setState({
       loading: true
     });
     axios.get("//api.github.com/repos/" + user + "/" + repo + "/contents/" + path)
     .then(function (response) {
       var sha = response.data.sha;
-      var data = Base64.atob(response.data.content);
+      var data = libbase64.decode(response.data.content).toString();
+      
       this$1.setState(( obj = {
         loading: false,
         nowsha: sha
@@ -9081,9 +9233,10 @@ var Code$2 = (function (Component$$1) {
           path: response.data.name,
           data: data,
           fullPath: path
-        }, obj));
+        }, obj['path_' + path] = sha, obj));
       var obj;
     }).catch(function (error) {
+      console.log(error);
       this$1.setState({
         loading: false
       });
@@ -9094,14 +9247,31 @@ var Code$2 = (function (Component$$1) {
     var ref = this.state;
     var nowsha = ref.nowsha;
     var loading = ref.loading;
+    var ref$1 = this.props.urlParams;
+    var user = ref$1.user;
+    var repo = ref$1.repo;
+    var sha = ref$1.sha;
     var data = this.state[nowsha];
     if (!data || loading) { return preact.h( Loading, null ); }
-    return preact.h( MdRender, { data: data, repo: this.props.repo, getRemoteByPath: this.getRemoteByPath.bind(this) });
-    return preact.h( 'div', null, data.data )
+    if (/\.md$/i.test(data.fullPath)) {
+      return preact.h( MdRender, { data: data, repo: this.props.repo, getRemoteByPath: this.getRemoteByPath.bind(this) });
+    } else if(SupportFileReg.test(data.fullPath)) {
+      return preact.h( 'div', null, data.data )
+    } else {
+      return preact.h( 'div', { class: "notSupport" },
+        preact.h( 'div', { class: "notSupportTip" }, data.path),
+        preact.h( 'div', { class: "notSupportTip" }, "not support file type"),
+        preact.h( 'a', { href: '//github.com/' + user + '/' + repo + '/tree/' + sha +  data.fullPath, class: "toDownload", target: "_blank", download: true }, "Click here to Github"), preact.h( 'br', null ),
+        preact.h( 'a', { href: '//github.com/' + user + '/' + repo + '/raw/' + sha +  data.fullPath, class: "toDownload", target: "_blank", download: true }, "Click here to Download")
+        
+      );
+    }
+    
+    
   };
 
   Code.prototype.render = function render$$1 () {
-    return preact.h( 'div', null, this.renderCode() );
+    return preact.h( 'div', { class: "componentCode" }, this.renderCode());
   };
 
   return Code;
@@ -9156,15 +9326,17 @@ var SelectBranch = (function (Component$$1) {
   function SelectBranch(props) {
     Component$$1.call(this, props);
     
+    var ref = this.props.urlParams;
+    var sha = ref.sha;
 
     this.state = {
-      isLoading: true,
+      isLoading: sha? false: true,
       branches: null,
       commits: null,
-      nowType: 'Branch'
+      nowType: sha? 'Hash' : 'Branch'
     };
 
-    this.getBranch();
+    !sha && this.getBranch();
   }
 
   if ( Component$$1 ) SelectBranch.__proto__ = Component$$1;
@@ -9221,37 +9393,10 @@ var SelectBranch = (function (Component$$1) {
   };
 
   SelectBranch.prototype.addCommit = function addCommit (name, sha) {
-    var repoList = {};
     var ref = this.props.urlParams;
     var user = ref.user;
     var repo = ref.repo;
-    try {
-      var storageData = localStorage.getItem('crRepoList') || '';
-      repoList = JSON.parse(storageData);
-    } catch(e){}
-
-    if (!repoList[user + '/' + repo]) {
-      repoList[user + '/' + repo] = {
-        date: new Date() - 0,
-        branch: [],
-        user: user,
-        repo: repo
-      };
-    }
-
-    var nowIndex = repoList[user + '/' + repo].branch.indexOf(sha);
-    var insertData = {
-      sha: sha,
-      name: name,
-      date: new Date() - 0
-    };
-    if (nowIndex != -1) {
-      repoList[user + '/' + repo].branch.splice(nowIndex, 1);
-    }
-    repoList[user + '/' + repo].branch.unshift(insertData);
-    repoList[user + '/' + repo].date = new Date() - 0;
-
-    localStorage.setItem('crRepoList', JSON.stringify(repoList));
+    Storage.BranchAdd(user, repo, name, sha);
     location.href = '#/';
   };
 
@@ -9263,7 +9408,19 @@ var SelectBranch = (function (Component$$1) {
   };
 
   SelectBranch.prototype.handleBack = function handleBack () {
-    history.back();
+    // history.back();
+    location.href = '#';
+  };
+
+  SelectBranch.prototype.addHashHandle = function addHashHandle () {
+    var ele = document.getElementById('selectBranchTextarea');
+    var sha = ele.value;
+    if (!sha) { return; }
+    var ref = this.props.urlParams;
+    var user = ref.user;
+    var repo = ref.repo;
+    Storage.BranchAdd(user, repo, sha, sha);
+    location.href = '#/';
   };
   
   SelectBranch.prototype.render = function render$$1 () {
@@ -9277,6 +9434,7 @@ var SelectBranch = (function (Component$$1) {
     var ref$1 = this.props.urlParams;
     var user = ref$1.user;
     var repo = ref$1.repo;
+    var sha = ref$1.sha;
     return preact.h( 'div', { class: "selectBranch" },
       preact.h( 'div', { class: "title" }, "Select", ['Branch', 'Commit', 'Hash'].map(function (type) {
             return preact.h( 'span', { class: type == nowType? 'selected': '', onClick: this$1.changeType.bind(this$1, type) }, type);
@@ -9299,8 +9457,8 @@ var SelectBranch = (function (Component$$1) {
             )
           }),
         nowType == 'Hash' && preact.h( 'div', { class: "hash" },
-            preact.h( 'textarea', { placeholder: "Please enter the hash", id: "selectBranchTextarea" }),
-            preact.h( 'div', { class: "button" }, "Confirm")
+            preact.h( 'textarea', { placeholder: "Please enter the hash", id: "selectBranchTextarea" }, sha),
+            preact.h( 'div', { class: "button", onClick: this.addHashHandle.bind(this) }, "Confirm")
           )
       )
     )
@@ -9352,18 +9510,7 @@ var RepoList = (function (Component$$1) {
   RepoList.prototype.constructor = RepoList;
 
   RepoList.prototype.getList = function getList () {
-    var repoList = {};
-    try {
-      var storageData = localStorage.getItem('crRepoList') || '';
-      repoList = JSON.parse(storageData);
-    } catch(e){}
-    var repos = Object.keys(repoList);
-
-    return preact.h( 'div', { class: "listContainer" }, repos.map(function (repo) {
-        return repoList[repo];
-      }).sort(function (a, b) {
-        return b.date - a.date;
-      }).map(function (repo) {
+    return preact.h( 'div', { class: "listContainer" }, Storage.RepoList().map(function (repo) {
         return preact.h( 'a', { class: "listItem", href: '#/repo/' + repo.user + '/' + repo.repo },
           preact.h( 'div', { class: "listName" }, repo.user, " / ", repo.repo),
           preact.h( 'div', { class: "listInfo" }, format$1(repo.date, 'yyyy-MM-dd hh:mm:ss'))
@@ -9449,7 +9596,7 @@ var Cr = function () {
     preact.h( Create, { path: "/add" }),
     preact.h( Code, { path: "/code/:user/:repo/:sha" }),
     preact.h( RepoBranch, { path: "/repo/:user/:repo" }),
-    preact.h( SelectBranch, { path: "/branch/:user/:repo" })
+    preact.h( SelectBranch, { path: "/branch/:user/:repo/(:sha)" })
   );
 };
 

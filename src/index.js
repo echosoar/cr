@@ -10,6 +10,7 @@ import SelectBranch from '_/pages/selectBranch/index.js';
 import RepoList from '_/pages/repoList/index.js';
 import RepoBranch from '_/pages/repoBranch/index.js';
 
+
 const Cr = () => {
   return <Base>
     <Confirm />
@@ -17,7 +18,7 @@ const Cr = () => {
     <Add path="/add" />
     <Code path="/code/:user/:repo/:sha" />
     <RepoBranch path="/repo/:user/:repo" />
-    <SelectBranch path="/branch/:user/:repo" />
+    <SelectBranch path="/branch/:user/:repo/(:sha)" />
   </Base>;
 }
 

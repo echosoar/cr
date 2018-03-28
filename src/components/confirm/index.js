@@ -10,8 +10,10 @@ class Confirm extends Component {
       isOpen: false,
     }
 
-    window.crConfirm = this.confirm.bind(this);
-    
+    window.crConfirm = {
+      open: this.confirm.bind(this),
+      close: this.onlyClose.bind(this)
+    }
   }
 
   confirm(ele, ok, cancel) {
@@ -21,6 +23,12 @@ class Confirm extends Component {
       ele,
       ok,
       cancel
+    });
+  }
+
+  onlyClose() {
+    this.setState({
+      isOpen: false
     });
   }
 

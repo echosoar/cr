@@ -1,24 +1,14 @@
 'use strict';
 import { Component } from 'preact'; /** @jsx h */
 import TimeFormat from '_/utils/timeFormat.js';
+import Storage from '_/utils/storage.js';
 import './index.less';
 
 class RepoList extends Component {
 
   getList() {
-    let repoList = {};
-    try {
-      let storageData = localStorage.getItem('crRepoList') || '';
-      repoList = JSON.parse(storageData);
-    } catch(e){};
-    let repos = Object.keys(repoList);
-
     return <div class="listContainer">{
-      repos.map(repo => {
-        return repoList[repo];
-      }).sort((a, b) => {
-        return b.date - a.date;
-      }).map(repo => {
+      Storage.RepoList().map(repo => {
         return <a class="listItem" href={'#/repo/' + repo.user + '/' + repo.repo}>
           <div class="listName">{repo.user} / {repo.repo}</div>
           <div class="listInfo">{ TimeFormat(repo.date, 'yyyy-MM-dd hh:mm:ss') }</div>

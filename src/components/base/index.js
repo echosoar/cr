@@ -1,7 +1,7 @@
 'use strict';
 import { Component } from 'preact'; /** @jsx h */
 import './index.less';
-
+import Storage from '_/utils/storage.js';
 class Base extends Component {
 
   constructor(props) {
@@ -10,10 +10,9 @@ class Base extends Component {
     this.state = {
       nowChild: []
     }
-    this.filterChildren();
-
-
+    Storage.checkURL();
     window.onhashchange = this.filterChildren.bind(this);
+    this.filterChildren();
   }
 
   filterChildren() {
@@ -42,11 +41,18 @@ class Base extends Component {
         return;
       }
 
-      let pathArr = path.replace(/^(#\/|\/)/, '').replace(/\/$/, '').split('/');
+      let pathArrLen = 0;
+      let pathArr = path.replace(/^(#\/|\/)/, '').replace(/\/$/, '').split('/').map(path => {
+        if (/^\(.*?\)$/.test(path)) {
+          return path.replace(/(^\(|\)$)/g, '');
+        }
+        pathArrLen ++;
+        return path;
+      });
       let nowMatch = 0;
       let nowParam = {};
 
-      if (pathArr.length > nowPath.length) return;
+      if (pathArrLen > nowPath.length) return;
 
       pathArr.map((pathItem, pathIndex) => {
         if (nowMatch == pathIndex) {
@@ -59,7 +65,7 @@ class Base extends Component {
           }
         }
       });
-
+      
       if (nowMatch > nowMatchChildLength) {
         nowMatchChildLength = nowMatch;
         nowChild = [{
@@ -97,7 +103,7 @@ class Base extends Component {
   render() {
     return <div class="main">
       <div>{ this.state.nowChild }</div>
-      <div class="copyright">© 2018 Code Reader</div>
+      <div class="copyright">© 2018 Cr.js</div>
     </div>
   }
 }

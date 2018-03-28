@@ -1,13 +1,36 @@
 ## CR - Code Reader
-CR的初衷是为了能够高效便捷的在任何移动设备上阅读github等开源代码。
+
+Welcome to use cr to read github code.
+
+CR is a github code reader designed to read and comment code easily and efficiently on mobile devices such as IPADs and cell phones. Can be serverless, you can also configure the interface to store comments and other data.
+
+https://cr.js.org 
 
 ------------
 
-#### CR具有如下功能
-1. 良好的目录树、代码临时缓存及加载机制。
-2. 代码批注，本地存储于localStorage，可配置CURD接口。
-3. 多语言代码高亮支持。
-4. 可对主题及字体等进行配置。
+#### To-do
+- [x] Load repositories and branch
+- [x] Add branch by commit
+- [ ] Add branch by sha
+- [ ] Add repo and branch by url 
+  - [ ] By https://cr.js.org/#/.../:user/:repo/...
+  - [ ] By https://cr.js.org/#/.../:user/:repo/:sha/...
+- [x] Add repo filter the same sha
+- [x] Markdown resolve
+- [x] Markdown relative image
+- [x] Markdown relative ahref click
+- [ ] Cache file data on global(window)
+- [ ] Code typesetting and highlight
+- [x] Interception outer ahref click
+- [x] Detect if github link and popup add prompt
+- [x] Global confirm open & close
+- [ ] Global alert open & close
+- [ ] Rewrite return button
+- [ ] Recent open file(user/repo/sha/path/fullPath) log
+- [ ] Sort repo and branch by use date
+- [ ] Autoload README.md
+- [x] Download or skip to github for not support file 
+- [ ] Delete repo
+- [ ] Delete branch
 
-
-© 2017 echosoar
+© 2018 echosoar
