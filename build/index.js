@@ -977,6 +977,22 @@ Storage.BranchCheck = function (repoItem, sha) {
   return branch;
 };
 
+Storage.BranchList = function (user, repo) {
+  var repoList = {};
+  try {
+    var storageData = localStorage.getItem('crRepoList') || '';
+    repoList = JSON.parse(storageData);
+  } catch(e){}
+  var repoItem = repoList[user + '/' + repo];
+  if (!repoItem || !repoItem.branch) {
+    return null;
+  } else {
+    return repoItem.branch.sort(function (a, b) {
+      return b.date - a.date;
+    });
+  }
+};
+
 Storage.checkURL = function () {
   var nowPath = location.hash || '';
   nowPath = nowPath.replace(/^(#\/|\/)/, '').replace(/\/$/, '').split('/');
@@ -989,6 +1005,7 @@ Storage.checkURL = function () {
   var branchExists = Storage.BranchCheck(repoExists, sha);
   // if repo and sha exists return;
   if (!branchExists) { location.href = '#/branch/' + user + '/' + repo + '/' + sha; }
+
 };
 
 'use strict';
@@ -1108,7 +1125,8 @@ var Confirm = (function (Component$$1) {
   function Confirm(props) {
     Component$$1.call(this, props);
     this.state = {
-      isOpen: false,
+      isAlert: false,
+      isOpen: false
     };
 
     window.crConfirm = {
@@ -1123,7 +1141,13 @@ var Confirm = (function (Component$$1) {
 
   Confirm.prototype.confirm = function confirm (ele, ok, cancel) {
     if (this.state.isOpen) { return; }
+    var isAlert = false;
+    if (ok == 'alert') {
+      ok = null;
+      isAlert = true;
+    }
     this.setState({
+      isAlert: isAlert,
       isOpen: true,
       ele: ele,
       ok: ok,
@@ -1156,14 +1180,16 @@ var Confirm = (function (Component$$1) {
     var ele = ref.ele;
     var ok = ref.ok;
     var cancel = ref.cancel;
+    var isAlert = ref.isAlert;
     return preact.h( 'div', { class: "confirm" },
         isOpen && ele && preact.h( 'div', { class: "confirmContainer" },
             preact.h( 'div', { class: "content" },
               ele,
-              preact.h( 'div', { class: "btnContainer" },
-                preact.h( 'div', { class: "btnOk", onClick: this.ok.bind(this) }, ok && ok.text || 'Confirm'),
-                preact.h( 'div', { class: "btnCancel", onClick: this.close.bind(this) }, cancel && cancel.text || 'Cancel')
-              )
+              
+              !isAlert ? preact.h( 'div', { class: "btnContainer" },
+                  preact.h( 'div', { class: "btnOk", onClick: this.ok.bind(this) }, ok && ok.text || 'Confirm'),
+                  preact.h( 'div', { class: "btnCancel", onClick: this.close.bind(this) }, cancel && cancel.text || 'Cancel')
+                ): preact.h( 'div', { class: "btnClose", onClick: this.close.bind(this) }, "Close")
             )
           )
     );
@@ -3055,19 +3081,70 @@ return /******/ (function(modules) { // webpackBootstrap
 
 });
 
-'use strict';
+// global cache data
+// 1. file data
+
 /**
- * Tree的格式
- * 存储在 crTree 里面
- * 第一级为分支hash
- * 第二级为项
  * {
- *  [hash]: {
- *    childHash: []
- *  }
+ *  name,
+ *  date,
+ *  data
  * }
  */
+var GlobalCache = function GlobalCache() {
+  if (!window.crGlobalCache) { window.crGlobalCache = {}; }
 
+  this.dataCacheSizeDefault = 6;
+  this.dataCacheSizeType = {
+    code: 20
+  };
+};
+
+GlobalCache.prototype.add = function add (type, name, data) {
+  var size = this.dataCacheSizeType[type] || this.dataCacheSizeDefault;
+  if (!window.crGlobalCache[type]) { window.crGlobalCache[type] = []; }
+
+  var cacheIndex = this.getIndex(name, window.crGlobalCache[type]);
+  if (cacheIndex) {
+    data = window.crGlobalCache[type][cacheIndex].data;
+    window.crGlobalCache[type].splice(cacheIndex, 1);
+  }
+  if (window.crGlobalCache[type].length >= size -1) {
+    window.crGlobalCache[type].pop();
+  }
+  window.crGlobalCache[type].unshift({
+    name: name,
+    date: new Date() - 0,
+    data: data
+  });
+};
+
+GlobalCache.prototype.getIndex = function getIndex (name, cacheData) {
+  var matchIndex = null;
+  cacheData.map(function (item, index) {
+    if (item.name == name) { matchIndex = index; }
+  });
+  return matchIndex;
+};
+
+GlobalCache.prototype.get = function get (type, name) {
+  if (!window.crGlobalCache[type]) { return null; }
+  if (!name) { return window.crGlobalCache[type]; }
+  var cacheIndex = this.getIndex(name, window.crGlobalCache[type]);
+  if (cacheIndex == null) { return; }
+  var data = window.crGlobalCache[type][cacheIndex].data;
+  window.crGlobalCache[type].splice(cacheIndex, 1);
+  window.crGlobalCache[type].unshift({
+    name: name,
+    date: new Date() - 0,
+    data: data
+  });
+  return data;
+};
+
+var GlobalCache$1 = new GlobalCache();
+
+'use strict';
 var Toc = (function (Component$$1) {
   function Toc(props) {
     Component$$1.call(this, props);
@@ -3092,6 +3169,13 @@ var Toc = (function (Component$$1) {
 
   Toc.prototype.componentDidMount = function componentDidMount () {
     this.getTree(this.props.sha);
+  };
+
+  Toc.prototype.componentWillReceiveProps = function componentWillReceiveProps (newProps) {
+    if (newProps.sha != this.props.sha) {
+      this.props = newProps;
+      this.getTree(newProps.sha);
+    }
   };
 
   Toc.prototype.getTree = function getTree (sha) {
@@ -3179,26 +3263,23 @@ var Toc = (function (Component$$1) {
     });
   };
 
-  Toc.prototype.fileClick = function fileClick (sha, path, fullPath, e) {
+  Toc.prototype.fileClick = function fileClick (sha, path, fullPath, otherBranch,e) {
     e.stopPropagation();
     this.setState({
       isOpen: false,
       date: new Date()
     });
-    this.props.fileClick && this.props.fileClick({
-      sha: sha,
-      path: path,
-      fullPath: fullPath
-    });
+    if (otherBranch) {
+      location.href = '#/code/' + otherBranch + '/' + sha;
+    } else {
+      this.props.fileClick && this.props.fileClick({
+        sha: sha,
+        path: path,
+        fullPath: fullPath
+      });
+    }
   };
-  /**
-   * 
-   * 状态包含4种：
-   * 1. 未加载 treeItemNotLoad 显示关闭icon 点击后显示加载中
-   * 2. 加载中 treeItemLoading 显示旋转icon
-   * 3. 已加载、未展开
-   * 3. 已加载、已展开
-   */
+
 
   Toc.prototype.renderTree = function renderTree (sha, path) {
     var this$1 = this;
@@ -3211,7 +3292,7 @@ var Toc = (function (Component$$1) {
       nowTree.map(function (treeItem) {
           
           if (treeItem.type == 0) {
-            return preact.h( 'div', { class: "treeItemFile", onClick: this$1.fileClick.bind(this$1, treeItem.sha, treeItem.path, path + '/' + treeItem.path) }, treeItem.path);
+            return preact.h( 'div', { class: "treeItemFile", onClick: this$1.fileClick.bind(this$1, treeItem.sha, treeItem.path, path + '/' + treeItem.path, null) }, treeItem.path);
           }
           var clickHandle = function () {};
           var className = 'treeItem';
@@ -3239,6 +3320,8 @@ var Toc = (function (Component$$1) {
   };
 
   Toc.prototype.render = function render$$1 () {
+    var this$1 = this;
+
     var ref = this.state;
     var isOpen = ref.isOpen;
     var tree = ref.tree;
@@ -3247,6 +3330,8 @@ var Toc = (function (Component$$1) {
     var user = ref$1.user;
     var repo = ref$1.repo;
     var sha = ref$1.sha;
+    var nowBranch = [user, repo, sha].join('/');
+    var recent = GlobalCache$1.get('code');
     return preact.h( 'div', { class: "toc" },
       !isOpen && preact.h( 'div', { class: "open", onClick: this.changeOpen.bind(this, true) }, "Toc"),
       preact.h( 'div', { class: isOpen?'tocContainer tocContainerOpen': 'tocContainer' },
@@ -3256,6 +3341,18 @@ var Toc = (function (Component$$1) {
           ),
           preact.h( 'div', { class: "tocTree" },
             preact.h( 'div', { class: "tocTreeRepo" }, user, " / ", repo),
+            recent && preact.h( 'div', null,
+              preact.h( 'div', { class: "tocTreeTitle" }, "Recent"),
+              recent.slice(0, 5).map(function (item) {
+                  var className = 'treeItemFile';
+                  var otherBranch = null;
+                  if (item.data.branch != nowBranch) {
+                    otherBranch = item.data.branch;
+                    className += ' treeItemFileOuter';
+                  }
+                  return preact.h( 'div', { class: className, onClick: this$1.fileClick.bind(this$1, item.data.sha, item.data.path, item.data.fullPath, otherBranch) }, item.data.path);
+                })
+            ),
             preact.h( 'div', { class: "tocTreeTitle" }, "Tree"),
             tree && this.renderTree(sha)
           )
@@ -3848,6 +3945,44 @@ var MdRender = (function (Component$$1) {
   };
 
   return MdRender;
+}(Component));
+
+'use strict';
+var CommonCode = (function (Component$$1) {
+  function CommonCode () {
+    Component$$1.apply(this, arguments);
+  }
+
+  if ( Component$$1 ) CommonCode.__proto__ = Component$$1;
+  CommonCode.prototype = Object.create( Component$$1 && Component$$1.prototype );
+  CommonCode.prototype.constructor = CommonCode;
+
+  CommonCode.prototype.formatData = function formatData (code) {
+    var codeTransfromData = hljs.highlightAuto(code || '').value;
+    var codeLines = (codeTransfromData || '').split('\n');
+    
+    var lineIndexLen = (codeLines.length + '').length * 2;
+    console.log(lineIndexLen);
+    
+    return ("<div class=\"commoncode light\">" + (codeLines.map(function (line, lineIndex) {
+        var preSpaceSize = 0;
+        var style = [];
+        var preSpace = /^(\s*)/.exec(line);
+        if (preSpace) {
+          preSpaceSize = preSpace[0].length;
+        }
+        if (preSpaceSize > 20) { preSpaceSize = 20; }
+        style.push('padding-left:' + ( lineIndexLen + preSpaceSize + 2)/2 + 'em');
+        style.push('padding-right: 0.5em');
+        return ("<div class=\"commoncode-line hljs\" style=\"" + (style.join(';')) + "\"><div class=\"commoncode-lineindex\" style=\"width: " + (lineIndexLen/2 + 'em') + "\">" + (lineIndex + 1) + "</div>" + line + "</div>");
+      }).join('')) + "</div>");
+  };
+
+  CommonCode.prototype.render = function render$$1 () {
+    return preact.h( 'div', { dangerouslySetInnerHTML: {__html: this.formatData(this.props.data)} })
+  };
+
+  return CommonCode;
 }(Component));
 
 'use strict';
@@ -9127,7 +9262,7 @@ var libbase64 = {
 };
 
 'use strict';
-var SupportFileReg = /(\.(?:gitignore|html|css|js|json|md|xml)|makefile|license)$/i;
+var SupportFileReg = /(\.(?:gitignore|html|css|js|json|md|xml|go|php|java|txt|cs|yml|h|m|c|podspec)|makefile|license|rc)$/i;
 
 var Code$2 = (function (Component$$1) {
   function Code(props) {
@@ -9144,16 +9279,18 @@ var Code$2 = (function (Component$$1) {
   Code.prototype = Object.create( Component$$1 && Component$$1.prototype );
   Code.prototype.constructor = Code;
 
-  Code.prototype.componentWillReceiveProps = function componentWillReceiveProps (props) {
-    this.load(props.file);
+  Code.prototype.componentWillReceiveProps = function componentWillReceiveProps (newProps) {
+    this.props = newProps;
+    this.load(newProps.file);
   };
 
   Code.prototype.load = function load (file) {
     if (!file) { return; }
     if (file.sha == this.state.nowsha) { return; }
-    if (this.state[file.sha]) {
+    var cacheData = GlobalCache$1.get('code', file.sha);
+    if (cacheData) {
       this.setState({
-        nowsha: file.sha
+        nowsha: cacheData.sha
       });
     } else {
       this.getRemote(file);
@@ -9166,6 +9303,7 @@ var Code$2 = (function (Component$$1) {
     var ref = this.props.urlParams;
     var user = ref.user;
     var repo = ref.repo;
+    var branch = ref.sha;
     var sha = file.sha;
     var path = file.path;
     var fullPath = file.fullPath;
@@ -9174,36 +9312,51 @@ var Code$2 = (function (Component$$1) {
       loading: true
     });
     if (!SupportFileReg.test(fullPath)) {
-      this.setState(( obj = {
+      GlobalCache$1.add('code', sha, {
+        branch: [user,repo,branch].join('/'),
+        sha: sha,
+        path: path,
+        data: '',
+        fullPath: fullPath
+      });
+      GlobalCache$1.add('path', path, sha);
+      this.setState({
         loading: false,
         nowsha: sha
-      }, obj[sha] = {
-          path: path,
-          data: '',
-          fullPath: fullPath
-        }, obj[path] = sha, obj));
-      var obj;
+      });
       return;
     }
     axios.get("//api.github.com/repos/" + user + "/" + repo + "/git/blobs/" + sha)
     .then(function (response) {
       var data = libbase64.decode(response.data.content).toString();
-      var path = 'path_' + fullPath.replace(/^\//, '');
-      this$1.setState(( obj = {
+      
+      GlobalCache$1.add('code', sha, {
+        branch: [user,repo,branch].join('/'),
+        sha: sha,
+        path: path,
+        data: data,
+        fullPath: fullPath
+      });
+      GlobalCache$1.add('path', path, sha);
+      this$1.setState({
         loading: false,
         nowsha: sha
-      }, obj[sha] = {
-          path: path,
-          data: data,
-          fullPath: fullPath
-        }, obj[path] = sha, obj));
-      var obj;
+      });
     }).catch(function (error) {
-      console.log("getRemote error", error);
-      this$1.setState({
+      this$1.handleError(error);
+    });
+  };
+
+  Code.prototype.handleError = function handleError (error) {
+    if (/403/.test(error + '')) {
+      this.setState({
         loading: false
       });
-    });
+      window.crConfirm.open(preact.h( 'div', null,
+        preact.h( 'div', { class: "confirmTitle" }, "Error"),
+        preact.h( 'div', { class: "confirmText" }, "Github api rate limit exceeded")
+      ), 'alert');
+    }
   };
 
   Code.prototype.getRemoteByPath = function getRemoteByPath (path) {
@@ -9212,9 +9365,12 @@ var Code$2 = (function (Component$$1) {
     var ref = this.props.urlParams;
     var user = ref.user;
     var repo = ref.repo;
-    if (this.state['path_' + path]) {
+    var branch = ref.sha;
+
+    var cachePath = GlobalCache$1.get('path', path);
+    if (cachePath) {
       this.setState({
-        nowsha: this.state['path_' + path]
+        nowsha: cachePath
       });
       return;
     }
@@ -9225,21 +9381,20 @@ var Code$2 = (function (Component$$1) {
     .then(function (response) {
       var sha = response.data.sha;
       var data = libbase64.decode(response.data.content).toString();
-      
-      this$1.setState(( obj = {
+      GlobalCache$1.add('code', sha, {
+        branch: [user,repo,branch].join('/'),
+        sha: sha,
+        path: path,
+        data: data,
+        fullPath: fullPath
+      });
+      GlobalCache$1.add('path', path, sha);
+      this$1.setState({
         loading: false,
         nowsha: sha
-      }, obj[sha] = {
-          path: response.data.name,
-          data: data,
-          fullPath: path
-        }, obj['path_' + path] = sha, obj));
-      var obj;
-    }).catch(function (error) {
-      console.log(error);
-      this$1.setState({
-        loading: false
       });
+    }).catch(function (error) {
+      this$1.handleError(error);
     });
   };
 
@@ -9251,19 +9406,18 @@ var Code$2 = (function (Component$$1) {
     var user = ref$1.user;
     var repo = ref$1.repo;
     var sha = ref$1.sha;
-    var data = this.state[nowsha];
+    var data = GlobalCache$1.get('code', nowsha);
     if (!data || loading) { return preact.h( Loading, null ); }
     if (/\.md$/i.test(data.fullPath)) {
-      return preact.h( MdRender, { data: data, repo: this.props.repo, getRemoteByPath: this.getRemoteByPath.bind(this) });
+      return preact.h( MdRender, { data: data, repo: this.props.urlParams, getRemoteByPath: this.getRemoteByPath.bind(this) });
     } else if(SupportFileReg.test(data.fullPath)) {
-      return preact.h( 'div', null, data.data )
+      return preact.h( CommonCode, { data: data.data });
     } else {
       return preact.h( 'div', { class: "notSupport" },
         preact.h( 'div', { class: "notSupportTip" }, data.path),
         preact.h( 'div', { class: "notSupportTip" }, "not support file type"),
         preact.h( 'a', { href: '//github.com/' + user + '/' + repo + '/tree/' + sha +  data.fullPath, class: "toDownload", target: "_blank", download: true }, "Click here to Github"), preact.h( 'br', null ),
         preact.h( 'a', { href: '//github.com/' + user + '/' + repo + '/raw/' + sha +  data.fullPath, class: "toDownload", target: "_blank", download: true }, "Click here to Download")
-        
       );
     }
     
@@ -9296,23 +9450,41 @@ var Code = (function (Component$$1) {
     });
   };
 
-  Code.prototype.handleBack = function handleBack () {
-    history.back();
+  Code.prototype.componentWillReceiveProps = function componentWillReceiveProps (newProps) {
+    if (newProps.urlParams.fileSha && this.props.urlParams.fileSha != newProps.urlParams.fileSha) {
+      this.props = newProps;
+      this.changeNewFile(newProps.urlParams.fileSha);
+    }
   };
+
+  Code.prototype.changeNewFile = function changeNewFile (newSha) {
+    var newCode = GlobalCache$1.get('code', newSha);
+    if (!newCode) { return; }
+    this.setState({
+      file: {
+        sha: newSha,
+        path: newCode.path,
+        fullPath: newCode.fullPath
+      }
+    });
+  };
+
 
   Code.prototype.render = function render$$1 () {
     var ref = this.props.urlParams;
     var user = ref.user;
     var repo = ref.repo;
     var sha = ref.sha;
+    
     var ref$1 = this.state;
     var file = ref$1.file;
+
     return preact.h( 'div', { class: "code" },
       preact.h( 'div', { class: "title" }, "Code"),
-      preact.h( 'div', { class: "return", onClick: this.handleBack.bind(this) }, "Back"),
+      preact.h( 'a', { href: "#" }, preact.h( 'div', { class: "return" }, "Back")),
       preact.h( Toc, { sha: sha, user: user, repo: repo, fileClick: this.fileClick.bind(this) }),
       preact.h( 'div', { class: "codeContent" },
-        file && preact.h( Code$2, { repo: this.props.urlParams, file: file, urlParams: this.props.urlParams })
+        file && preact.h( Code$2, { file: file, urlParams: this.props.urlParams })
       )
       
     )
@@ -9543,20 +9715,8 @@ var RepoBranch = (function (Component$$1) {
     var ref = this.props.urlParams;
     var user = ref.user;
     var repo = ref.repo;
-    var repoList = {};
-    try {
-      var storageData = localStorage.getItem('crRepoList') || '';
-      repoList = JSON.parse(storageData);
-    } catch(e){}
 
-    var repoItem = repoList[user + '/' + repo];
-    if (!repoItem || !repoItem.branch) {
-      return preact.h( 'div', null, "No Branch" );
-    }
-
-    return preact.h( 'div', null, repoItem.branch.sort(function (a, b) {
-        return a.date - b.date;
-      }).map(function (rep) {
+    return preact.h( 'div', null, Storage.BranchList(user, repo).map(function (rep) {
         return preact.h( 'a', { class: "branchItem", href: '#/code/' + user + '/' + repo + '/' + rep.sha },
           preact.h( 'div', { class: "branchName" }, rep.name || rep.sha),
           preact.h( 'div', { class: "branchInfo" }, format$1(rep.date, 'yyyy-MM-dd hh:mm:ss'))
@@ -9594,7 +9754,7 @@ var Cr = function () {
     preact.h( Confirm, null ),
     preact.h( RepoList, { home: true }),
     preact.h( Create, { path: "/add" }),
-    preact.h( Code, { path: "/code/:user/:repo/:sha" }),
+    preact.h( Code, { path: "/code/:user/:repo/:sha/(:fileSha)" }),
     preact.h( RepoBranch, { path: "/repo/:user/:repo" }),
     preact.h( SelectBranch, { path: "/branch/:user/:repo/(:sha)" })
   );

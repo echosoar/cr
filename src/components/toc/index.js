@@ -1,19 +1,8 @@
 'use strict';
 import { Component } from 'preact'; /** @jsx h */
 import axios from 'axios/dist/axios';
-
+import GlobalCache from '_/utils/globalCache.js';
 import './index.less';
-/**
- * Tree的格式
- * 存储在 crTree 里面
- * 第一级为分支hash
- * 第二级为项
- * {
- *  [hash]: {
- *    childHash: []
- *  }
- * }
- */
 
 class Toc extends Component {
   constructor(props) {
@@ -35,6 +24,13 @@ class Toc extends Component {
 
   componentDidMount() {
     this.getTree(this.props.sha);
+  }
+
+  componentWillReceiveProps(newProps) {
+    if (newProps.sha != this.props.sha) {
+      this.props = newProps;
+      this.getTree(newProps.sha);
+    }
   }
 
   getTree(sha) {
@@ -116,26 +112,23 @@ class Toc extends Component {
     });
   }
 
-  fileClick(sha, path, fullPath, e) {
+  fileClick(sha, path, fullPath, otherBranch,e) {
     e.stopPropagation();
     this.setState({
       isOpen: false,
       date: new Date()
     });
-    this.props.fileClick && this.props.fileClick({
-      sha,
-      path,
-      fullPath
-    });
+    if (otherBranch) {
+      location.href = '#/code/' + otherBranch + '/' + sha;
+    } else {
+      this.props.fileClick && this.props.fileClick({
+        sha,
+        path,
+        fullPath
+      });
+    }
   }
-  /**
-   * 
-   * 状态包含4种：
-   * 1. 未加载 treeItemNotLoad 显示关闭icon 点击后显示加载中
-   * 2. 加载中 treeItemLoading 显示旋转icon
-   * 3. 已加载、未展开
-   * 3. 已加载、已展开
-   */
+
 
   renderTree(sha, path) {
     let nowTree = this.state.tree[sha];
@@ -147,7 +140,7 @@ class Toc extends Component {
         nowTree.map(treeItem => {
           
           if (treeItem.type == 0) {
-            return <div class="treeItemFile" onClick={this.fileClick.bind(this, treeItem.sha, treeItem.path, path + '/' + treeItem.path)}>{ treeItem.path }</div>;
+            return <div class="treeItemFile" onClick={this.fileClick.bind(this, treeItem.sha, treeItem.path, path + '/' + treeItem.path, null)}>{ treeItem.path }</div>;
           }
           let clickHandle = () => {};
           let className = 'treeItem';
@@ -179,6 +172,8 @@ class Toc extends Component {
     let { isOpen, tree } = this.state;
 
     let { user, repo, sha } = this.props;
+    let nowBranch = [user, repo, sha].join('/');
+    let recent = GlobalCache.get('code');
     return <div class="toc">
       { !isOpen && <div class="open" onClick={this.changeOpen.bind(this, true)}>Toc</div> }
       <div class={isOpen?'tocContainer tocContainerOpen': 'tocContainer'}>
@@ -188,6 +183,20 @@ class Toc extends Component {
           </div>
           <div class="tocTree">
             <div class="tocTreeRepo">{user} / {repo}</div>
+            { recent && <div>
+              <div class="tocTreeTitle">Recent</div>
+              {
+                recent.slice(0, 5).map(item => {
+                  let className = 'treeItemFile';
+                  let otherBranch = null;
+                  if (item.data.branch != nowBranch) {
+                    otherBranch = item.data.branch;
+                    className += ' treeItemFileOuter';
+                  }
+                  return <div class={className} onClick={this.fileClick.bind(this, item.data.sha, item.data.path, item.data.fullPath, otherBranch)}>{ item.data.path }</div>;
+                })
+              }
+            </div>}
             <div class="tocTreeTitle">Tree</div>
             {
               tree && this.renderTree(sha)

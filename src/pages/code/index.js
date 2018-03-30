@@ -2,6 +2,7 @@
 import { Component } from 'preact'; /** @jsx h */
 import Toc from '_/components/toc/index.js';
 import CodeRender from '_/components/code/index.js';
+import GlobalCache from '_/utils/globalCache.js';
 import './index.less';
 
 class Code extends Component {
@@ -19,19 +20,38 @@ class Code extends Component {
     });
   }
 
-  handleBack() {
-    history.back();
+  componentWillReceiveProps(newProps) {
+    if (newProps.urlParams.fileSha && this.props.urlParams.fileSha != newProps.urlParams.fileSha) {
+      this.props = newProps;
+      this.changeNewFile(newProps.urlParams.fileSha);
+    }
   }
+
+  changeNewFile(newSha) {
+    let { user, repo, sha } = this.props.urlParams;
+    let newCode = GlobalCache.get('code', newSha);
+    if (!newCode) return;
+    this.setState({
+      file: {
+        sha: newSha,
+        path: newCode.path,
+        fullPath: newCode.fullPath
+      }
+    });
+  }
+
 
   render() {
     let { user, repo, sha } = this.props.urlParams;
+    
     let { file } = this.state;
+
     return <div class="code">
       <div class="title">Code</div>
-      <div class="return" onClick={this.handleBack.bind(this)}>Back</div>
+      <a href="#"><div class="return">Back</div></a>
       <Toc sha={sha} user={user} repo={repo} fileClick={this.fileClick.bind(this)} />
       <div class="codeContent">
-        { file && <CodeRender repo={this.props.urlParams} file={file} urlParams={this.props.urlParams} /> }
+        { file && <CodeRender file={file} urlParams={this.props.urlParams} /> }
       </div>
       
     </div>

@@ -2,11 +2,13 @@
 import { Component } from 'preact'; /** @jsx h */
 import axios from 'axios/dist/axios';
 import MdRender from '_/components/mdrender/index.js';
+import CommonCode from '_/components/commonCode/index.js';
 import Loading from '_/components/loading/index.js';
+import GlobalCache from '_/utils/globalCache.js';
 import libbase64 from 'libbase64';
 import './index.less';
 
-let SupportFileReg = /(\.(?:gitignore|html|css|js|json|md|xml)|makefile|license)$/i;
+let SupportFileReg = /(\.(?:gitignore|html|css|js|json|md|xml|go|php|java|txt|cs|yml|h|m|c|podspec)|makefile|license|rc)$/i;
 
 class Code extends Component {
 
@@ -20,16 +22,18 @@ class Code extends Component {
     this.load(props.file);
   }
 
-  componentWillReceiveProps(props) {
-    this.load(props.file);
+  componentWillReceiveProps(newProps) {
+    this.props = newProps;
+    this.load(newProps.file);
   }
 
   load(file) {
     if (!file) return;
     if (file.sha == this.state.nowsha) return;
-    if (this.state[file.sha]) {
+    let cacheData = GlobalCache.get('code', file.sha);
+    if (cacheData) {
       this.setState({
-        nowsha: file.sha
+        nowsha: cacheData.sha
       });
     } else {
       this.getRemote(file);
@@ -37,52 +41,67 @@ class Code extends Component {
   }
 
   getRemote(file) {
-    let { user, repo} = this.props.urlParams;
+    let { user, repo, sha: branch} = this.props.urlParams;
     let { sha, path, fullPath } = file;
     
     this.setState({
       loading: true
     });
     if (!SupportFileReg.test(fullPath)) {
+      GlobalCache.add('code', sha, {
+        branch: [user,repo,branch].join('/'),
+        sha,
+        path,
+        data: '',
+        fullPath
+      });
+      GlobalCache.add('path', path, sha);
       this.setState({
-        [sha]: {
-          path,
-          data: '',
-          fullPath
-        },
         loading: false,
-        nowsha: sha,
-        [path]: sha
+        nowsha: sha
       });
       return;
     }
     axios.get(`//api.github.com/repos/${user}/${repo}/git/blobs/` + sha)
     .then((response) => {
       let data = libbase64.decode(response.data.content).toString();
-      let path = 'path_' + fullPath.replace(/^\//, '');
+      
+      GlobalCache.add('code', sha, {
+        branch: [user,repo,branch].join('/'),
+        sha,
+        path,
+        data,
+        fullPath
+      });
+      GlobalCache.add('path', path, sha);
       this.setState({
-        [sha]: {
-          path,
-          data,
-          fullPath
-        },
         loading: false,
-        nowsha: sha,
-        [path]: sha
+        nowsha: sha
       });
     }).catch((error) => {
-      console.log("getRemote error", error)
-      this.setState({
-        loading: false
-      });
+      this.handleError(error);
     });
   }
 
-  getRemoteByPath(path) {
-    let { user, repo} = this.props.urlParams;
-    if (this.state['path_' + path]) {
+  handleError(error) {
+    if (/403/.test(error + '')) {
       this.setState({
-        nowsha: this.state['path_' + path]
+        loading: false
+      });
+      window.crConfirm.open(<div>
+        <div class="confirmTitle">Error</div>
+        <div class="confirmText">Github api rate limit exceeded</div>
+      </div>, 'alert');
+    }
+  }
+
+  getRemoteByPath(path) {
+    let { user, repo, sha: branch } = this.props.urlParams;
+
+    let cachePath = GlobalCache.get('path', path);
+    if (cachePath) {
+      this.setState({
+        nowsha: cachePath
       });
       return;
     }
@@ -93,41 +112,38 @@ class Code extends Component {
     .then((response) => {
       let sha = response.data.sha;
       let data = libbase64.decode(response.data.content).toString();
-      
+      GlobalCache.add('code', sha, {
+        branch: [user,repo,branch].join('/'),
+        sha,
+        path,
+        data,
+        fullPath
+      });
+      GlobalCache.add('path', path, sha);
       this.setState({
-        [sha]: {
-          path: response.data.name,
-          data,
-          fullPath: path
-        },
         loading: false,
-        nowsha: sha,
-        ['path_' + path]: sha
+        nowsha: sha
       });
     }).catch((error) => {
-      console.log(error)
-      this.setState({
-        loading: false
-      });
+      this.handleError(error);
     });
   }
 
   renderCode() {
     let { nowsha, loading } = this.state;
     let { user, repo, sha} = this.props.urlParams;
-    let data = this.state[nowsha];
+    let data = GlobalCache.get('code', nowsha);
     if (!data || loading) return <Loading />;
     if (/\.md$/i.test(data.fullPath)) {
-      return <MdRender data={ data } repo={this.props.repo} getRemoteByPath={this.getRemoteByPath.bind(this)}/>;
+      return <MdRender data={ data } repo={ this.props.urlParams } getRemoteByPath={this.getRemoteByPath.bind(this)}/>;
     } else if(SupportFileReg.test(data.fullPath)) {
-      return <div>{ data.data }</div>
+      return <CommonCode data={data.data} />;
     } else {
       return <div class="notSupport">
         <div class="notSupportTip">{ data.path }</div>
         <div class="notSupportTip">not support file type</div>
         <a href={'//github.com/' + user + '/' + repo + '/tree/' + sha +  data.fullPath } class="toDownload" target="_blank" download>Click here to Github</a><br />
         <a href={'//github.com/' + user + '/' + repo + '/raw/' + sha +  data.fullPath } class="toDownload" target="_blank" download>Click here to Download</a>
-        
       </div>;
     }
     

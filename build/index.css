@@ -88,6 +88,14 @@ a {
 .confirmContainer .content .btnContainer div.btnCancel {
   background: #f96;
 }
+.confirmContainer .content .btnClose {
+  height: 42px;
+  line-height: 42px;
+  text-align: center;
+  background: #f96;
+  color: #fff;
+  cursor: pointer;
+}
 .confirmContainer .content .confirmTitle {
   height: 42px;
   line-height: 42px;
@@ -242,7 +250,7 @@ a {
   top: 0;
   width: 8px;
   height: 30px;
-  background: url(//gw.alicdn.com/tfs/TB1pYy_glfH8KJjy1XbXXbLdXXa-16-16.png) 50% / contain no-repeat;
+  background: url("../static/images/close.png") 50% / contain no-repeat;
 }
 .toc .tocContainer .treeContainer .tocTree .treeItem.treeItemLoading::before {
   content: " ";
@@ -253,7 +261,7 @@ a {
   width: 10px;
   height: 10px;
   animation: rotate 1s linear infinite;
-  background: url(//gw.alicdn.com/tfs/TB10IZ6dOqAXuNjy1XdXXaYcVXa-16-16.png) 50% / contain no-repeat;
+  background: url("../static/images/load.png") 50% / contain no-repeat;
 }
 .toc .tocContainer .treeContainer .tocTree .treeItem.treeItemNotLoad::before {
   content: " ";
@@ -263,7 +271,7 @@ a {
   top: 0;
   width: 8px;
   height: 30px;
-  background: url(//gw.alicdn.com/tfs/TB1pYy_glfH8KJjy1XbXXbLdXXa-16-16.png) 50% / contain no-repeat;
+  background: url("../static/images/close.png") 50% / contain no-repeat;
 }
 .toc .tocContainer .treeContainer .tocTree .treeItem.treeItemOpen {
   height: auto;
@@ -276,7 +284,7 @@ a {
   top: 0;
   width: 10px;
   height: 30px;
-  background: url(//gw.alicdn.com/tfs/TB1BJDEghrI8KJjy0FpXXb5hVXa-16-16.png) 50% / contain no-repeat;
+  background: url("../static/images/open.png") 50% / contain no-repeat;
 }
 .toc .tocContainer .treeContainer .tocTree .treeItemFile {
   position: relative;
@@ -290,6 +298,15 @@ a {
   user-select: none;
   color: #333;
   font-size: 13px;
+}
+.toc .tocContainer .treeContainer .tocTree .treeItemFile.treeItemFileOuter::before {
+  content: ' ';
+  position: absolute;
+  top: 0;
+  left: 3px;
+  width: 12px;
+  height: 30px;
+  background: url("../static/images/other.png") center / contain no-repeat;
 }
 .toc .tocContainer .treeContainer .close {
   width: 32px;
@@ -386,7 +403,7 @@ a {
   margin-right: 2px;
   border: 0;
   vertical-align: middle;
-  background: url('//gw.alicdn.com/tfs/TB1T0S.g49YBuNjy0FfXXXIsVXa-32-32.png') center / contain no-repeat;
+  background: url("../static/images/github.png") center / contain no-repeat;
 }
 .mdtextrender a {
   background-color: transparent;
@@ -664,7 +681,7 @@ a {
 }
 .mdtextrender li i.checked {
   border: 0;
-  background: #396 url('//gw.alicdn.com/tfs/TB1ZesAkjnD8KJjSspbXXbbEXXa-32-32.png') center / 60% no-repeat;
+  background: #396 url("../static/ok.png") center / 60% no-repeat;
 }
 .mdtextrender dl {
   padding: 0;
@@ -855,6 +872,81 @@ a {
 .mdtextrender .hljs-emphasis {
   font-style: italic;
 }
+.commoncode {
+  font-size: 12px;
+}
+.commoncode .commoncode-line {
+  position: relative;
+  border-bottom: 1px dotted #eee;
+  word-break: break-all;
+  line-height: 2em;
+  font-size: 1.08333333em;
+  text-indent: -1em;
+  min-height: 2em;
+}
+.commoncode .commoncode-line:last-child {
+  border-bottom: 0;
+}
+.commoncode .commoncode-line .commoncode-lineindex {
+  position: absolute;
+  left: 0;
+  padding-left: 0.5em;
+  top: 0;
+  font-size: 1em;
+  color: #999;
+  line-height: 2em;
+  text-indent: 0;
+}
+.commoncode.light .hljs {
+  display: block;
+  color: black;
+}
+.commoncode.light .hljs-comment,
+.commoncode.light .hljs-quote,
+.commoncode.light .hljs-variable {
+  color: #008000;
+}
+.commoncode.light .hljs-keyword,
+.commoncode.light .hljs-selector-tag,
+.commoncode.light .hljs-built_in,
+.commoncode.light .hljs-name,
+.commoncode.light .hljs-tag {
+  color: #36f;
+}
+.commoncode.light .hljs-string,
+.commoncode.light .hljs-title,
+.commoncode.light .hljs-section,
+.commoncode.light .hljs-attribute,
+.commoncode.light .hljs-literal,
+.commoncode.light .hljs-template-tag,
+.commoncode.light .hljs-template-variable,
+.commoncode.light .hljs-type,
+.commoncode.light .hljs-addition {
+  color: #a31515;
+}
+.commoncode.light .hljs-deletion,
+.commoncode.light .hljs-selector-attr,
+.commoncode.light .hljs-selector-pseudo,
+.commoncode.light .hljs-meta {
+  color: #2b91af;
+}
+.commoncode.light .hljs-doctag {
+  color: #808080;
+}
+.commoncode.light .hljs-attr {
+  color: #f00;
+}
+.commoncode.light .hljs-symbol,
+.commoncode.light .hljs-bullet,
+.commoncode.light .hljs-link {
+  color: #00b0e8;
+}
+.commoncode.light .hljs-emphasis {
+  font-style: italic;
+}
+.commoncode.light .hljs-strong {
+  font-weight: bold;
+}
 .loading {
   padding: 32px 0;
   text-align: center;
@@ -863,6 +955,7 @@ a {
 }
 .componentCode .notSupport {
   padding: 20px 0;
+  text-align: center;
 }
 .componentCode .notSupport .notSupportTip {
   margin: 10px;

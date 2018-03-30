@@ -11,6 +11,7 @@ https://cr.js.org
 #### To-do
 - [x] Load repositories and branch
 - [x] Add branch by commit
+  - [ ] Auto remove input value
 - [x] Add branch by sha
 - [x] Add repo and branch by url 
   - [x] By https://cr.js.org/#/.../:user/:repo/...
@@ -19,19 +20,26 @@ https://cr.js.org
 - [x] Markdown resolve
 - [x] Markdown relative image
 - [x] Markdown relative ahref click
-- [ ] Cache file data on global(window)
-- [ ] Code typesetting and highlight
+- [x] Cache file data on global(window)
+- [x] Code typesetting and highlight
 - [x] Interception outer ahref click
 - [x] Detect if github link and popup add prompt
 - [x] Global confirm open & close
-- [ ] Global alert open & close
+- [x] Global alert open & close
 - [ ] Rewrite return button
-- [ ] Recent open file(user/repo/sha/path/fullPath) log
-- [ ] Sort repo and branch by use date
+- [x] Recent open file(user/repo/sha/path/fullPath) log
+- [x] Sort repo and branch by use date
 - [ ] Autoload README.md
+- [ ] Auto redirect to code when only one branch
 - [x] Download or skip to github for not support file 
 - [ ] Delete repo
 - [ ] Delete branch
 - [ ] GitStar button 
+- [ ] Setting             
+  - [ ] Font size
+  - [ ] Background color
+- [ ] Load the newest branch
+- [ ] JSON format
+- [ ] Code Comment by line index
 
 © 2018 echosoar

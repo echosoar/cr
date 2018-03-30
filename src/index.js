@@ -16,7 +16,7 @@ const Cr = () => {
     <Confirm />
     <RepoList home />
     <Add path="/add" />
-    <Code path="/code/:user/:repo/:sha" />
+    <Code path="/code/:user/:repo/:sha/(:fileSha)" />
     <RepoBranch path="/repo/:user/:repo" />
     <SelectBranch path="/branch/:user/:repo/(:sha)" />
   </Base>;

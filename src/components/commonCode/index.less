@@ -1,0 +1,93 @@
+@fz: 12em;
+.commoncode {
+  font-size: 12px;
+  .commoncode-line {
+    position: relative;
+    border-bottom: 1px dotted #eee;
+    word-break: break-all;
+    line-height: 24/@fz;
+    font-size: 13/@fz;
+    text-indent: -12/@fz;
+    min-height: 24/@fz;
+
+    &:last-child {
+      border-bottom: 0;
+    }
+
+    .commoncode-lineindex {
+      position: absolute;
+      left: 0;
+      padding-left: 6/@fz;
+      top: 0;
+      font-size: 12/@fz;
+      color: #999;
+      line-height: 24/@fz;
+      text-indent: 0;
+    }
+  }
+
+  &.light {
+
+    
+    .hljs {
+      display: block;
+      color: black;
+    }
+    
+    .hljs-comment,
+    .hljs-quote,
+    .hljs-variable {
+      color: #008000;
+    }
+    
+    .hljs-keyword,
+    .hljs-selector-tag,
+    .hljs-built_in,
+    .hljs-name,
+    .hljs-tag {
+      color: #36f;
+    }
+    
+    .hljs-string,
+    .hljs-title,
+    .hljs-section,
+    .hljs-attribute,
+    .hljs-literal,
+    .hljs-template-tag,
+    .hljs-template-variable,
+    .hljs-type,
+    .hljs-addition {
+      color: #a31515;
+    }
+    
+    .hljs-deletion,
+    .hljs-selector-attr,
+    .hljs-selector-pseudo,
+    .hljs-meta {
+      color: #2b91af;
+    }
+    
+    .hljs-doctag {
+      color: #808080;
+    }
+    
+    .hljs-attr {
+      color: #f00;
+    }
+    
+    .hljs-symbol,
+    .hljs-bullet,
+    .hljs-link {
+      color: #00b0e8;
+    }
+    
+    
+    .hljs-emphasis {
+      font-style: italic;
+    }
+    
+    .hljs-strong {
+      font-weight: bold;
+    }
+  }
+}

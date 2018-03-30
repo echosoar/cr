@@ -74,6 +74,22 @@ Storage.BranchCheck = (repoItem, sha) => {
   return branch;
 }
 
+Storage.BranchList = (user, repo) => {
+  let repoList = {};
+  try {
+    let storageData = localStorage.getItem('crRepoList') || '';
+    repoList = JSON.parse(storageData);
+  } catch(e){};
+  let repoItem = repoList[user + '/' + repo];
+  if (!repoItem || !repoItem.branch) {
+    return null;
+  } else {
+    return repoItem.branch.sort((a, b) => {
+      return b.date - a.date;
+    });
+  }
+}
+
 Storage.checkURL = () => {
   let nowPath = location.hash || '';
   nowPath = nowPath.replace(/^(#\/|\/)/, '').replace(/\/$/, '').split('/');
@@ -86,5 +102,6 @@ Storage.checkURL = () => {
   let branchExists = Storage.BranchCheck(repoExists, sha);
   // if repo and sha exists return;
   if (!branchExists) location.href = '#/branch/' + user + '/' + repo + '/' + sha;
+
 }
 export default Storage;

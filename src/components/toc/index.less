@@ -97,7 +97,7 @@
             top: 0;
             width: 8px;
             height: 30px;
-            background: url(//gw.alicdn.com/tfs/TB1pYy_glfH8KJjy1XbXXbLdXXa-16-16.png) 50%/contain no-repeat;
+            background: url("../static/images/close.png") 50%/contain no-repeat;
           }
   
           &.treeItemLoading::before {
@@ -109,7 +109,7 @@
             width: 10px;
             height: 10px;
             animation: rotate 1s linear infinite;
-            background: url(//gw.alicdn.com/tfs/TB10IZ6dOqAXuNjy1XdXXaYcVXa-16-16.png) 50%/contain no-repeat;
+            background: url("../static/images/load.png") 50%/contain no-repeat;
           }
   
           &.treeItemNotLoad::before {
@@ -120,7 +120,7 @@
             top: 0;
             width: 8px;
             height: 30px;
-            background: url(//gw.alicdn.com/tfs/TB1pYy_glfH8KJjy1XbXXbLdXXa-16-16.png) 50%/contain no-repeat;
+            background: url("../static/images/close.png") 50%/contain no-repeat;
           }
   
           &.treeItemOpen{
@@ -133,7 +133,7 @@
               top: 0;
               width: 10px;
               height: 30px;
-              background: url(//gw.alicdn.com/tfs/TB1BJDEghrI8KJjy0FpXXb5hVXa-16-16.png) 50%/contain no-repeat;
+              background: url("../static/images/open.png") 50%/contain no-repeat;
             }
           }
         }
@@ -149,6 +149,18 @@
           user-select: none;
           color: #333;
           font-size: 13px;
+
+          &.treeItemFileOuter {
+            &::before {
+              content: ' ';
+              position: absolute;
+              top: 0;
+              left: 3px;
+              width: 12px;
+              height: 30px;
+              background: url("../static/images/other.png") center/contain no-repeat;
+            }
+          }
         }
       }
 
