@@ -103,7 +103,7 @@ class Base extends Component {
   render() {
     return <div class="main">
       <div>{ this.state.nowChild }</div>
-      <div class="copyright">© 2018 Cr.js</div>
+      <div class="copyright">© 2018 Cr.js <a href="https://github.com/echosoar/cr" target="_blank">Github</a></div>
     </div>
   }
 }

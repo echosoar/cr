@@ -1116,6 +1116,35 @@ a {
   font-size: 12px;
   color: #666;
 }
+.repoList .introduction {
+  padding: 12px;
+  font-size: 13px;
+}
+.repoList .introduction .howTo {
+  border-left: 4px solid #cdf;
+  padding: 6px;
+  margin-bottom: 16px;
+}
+.repoList .introduction .introductionTitle {
+  font-size: 18px;
+  font-weight: bold;
+  color: #000;
+  padding: 12px 0;
+}
+.repoList .introduction .paragraph {
+  margin-bottom: 16px;
+}
+.repoList .introduction .paragraph a {
+  color: #39f;
+}
+.repoList .introduction .paragraph.bold {
+  font-size: 14px;
+  font-weight: bold;
+}
+.repoList .introduction .paragraph.list {
+  padding-left: 16px;
+  text-indent: -16px;
+}
 .branchList a {
   text-decoration: none;
 }

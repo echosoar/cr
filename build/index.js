@@ -1113,7 +1113,7 @@ var Base = (function (Component$$1) {
   Base.prototype.render = function render$$1 () {
     return preact.h( 'div', { class: "main" },
       preact.h( 'div', null, this.state.nowChild ),
-      preact.h( 'div', { class: "copyright" }, "© 2018 Cr.js")
+      preact.h( 'div', { class: "copyright" }, "© 2018 Cr.js ", preact.h( 'a', { href: "https://github.com/echosoar/cr", target: "_blank" }, "Github"))
     )
   };
 
@@ -9681,8 +9681,8 @@ var RepoList = (function (Component$$1) {
   RepoList.prototype = Object.create( Component$$1 && Component$$1.prototype );
   RepoList.prototype.constructor = RepoList;
 
-  RepoList.prototype.getList = function getList () {
-    return preact.h( 'div', { class: "listContainer" }, Storage.RepoList().map(function (repo) {
+  RepoList.prototype.getList = function getList (repoList) {
+    return preact.h( 'div', { class: "listContainer" }, repoList.map(function (repo) {
         return preact.h( 'a', { class: "listItem", href: '#/repo/' + repo.user + '/' + repo.repo },
           preact.h( 'div', { class: "listName" }, repo.user, " / ", repo.repo),
           preact.h( 'div', { class: "listInfo" }, format$1(repo.date, 'yyyy-MM-dd hh:mm:ss'))
@@ -9690,11 +9690,31 @@ var RepoList = (function (Component$$1) {
       }));
   };
 
+  RepoList.prototype.introduction = function introduction () {
+    return preact.h( 'div', { class: "introduction" },
+      preact.h( 'div', { class: "introductionTitle" }, "使用指引"),
+      preact.h( 'div', { class: "paragraph" }, "CR是一个无后端的Web应用，能够帮助你更加方便、舒适地阅读Github的代码。"),
+      preact.h( 'div', { class: "paragraph bold" }, "如何使用？"),
+      preact.h( 'div', { class: "howTo" },
+        preact.h( 'div', { class: "paragraph list" }, "1. 点击右上角的 “Add Repo” 添加一个Git仓库到本应用。"),
+        preact.h( 'div', { class: "paragraph list" }, "2. CR会帮您拉取他的分支、最近Commit，或者是你手动输入版本的SHA字符串，你可以从中选取一个你希望阅读的代码分支。")
+      ),
+      
+      preact.h( 'div', { class: "paragraph" }, "经过上面简单的两步你就可以愉快地在移动设备（手机、平板）上面阅读代码了。"),
+      preact.h( 'div', { class: "paragraph" }, "目前CR对于Markdown文件做了特殊的优化展示，对于代码也进行了适合在移动端阅读的适配。"),
+      preact.h( 'div', { class: "paragraph bold" }, "如果有更好的想法可以点击页面底部的Github链接提交 issue，如果喜欢这个项目可以给予 star ，有兴趣可以一起参与这个项目。"),
+      preact.h( 'div', { class: "paragraph" }, "另外你可以直接通过链接分享你正在阅读的代码给其他人，比如直接打开下面的链接就会自动添加 CR 的代码到你的阅读列表中"),
+      preact.h( 'a', { href: "https://cr.js.org/#/code/echosoar/cr" }, "https://cr.js.org/#/code/echosoar/cr")
+    );
+  };
+
   RepoList.prototype.render = function render$$1 () {
+
+    var repoList = Storage.RepoList();
     return preact.h( 'div', { class: "repoList" },
       preact.h( 'div', { class: "title" }, "Code Reader"),
       preact.h( 'a', { href: "#/add", class: "add" }, "+ Add Repo"),
-      this.getList()
+      repoList && repoList.length ? this.getList(repoList) : this.introduction()
     )
   };
 

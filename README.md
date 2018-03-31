@@ -41,5 +41,7 @@ https://cr.js.org
 - [ ] Load the newest branch
 - [ ] JSON format
 - [ ] Code Comment by line index
+- [ ] Add introduction to empty home page
+- [ ] Add github link
 
 © 2018 echosoar
