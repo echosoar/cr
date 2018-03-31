@@ -9704,7 +9704,7 @@ var RepoList = (function (Component$$1) {
       preact.h( 'div', { class: "paragraph" }, "目前CR对于Markdown文件做了特殊的优化展示，对于代码也进行了适合在移动端阅读的适配。"),
       preact.h( 'div', { class: "paragraph bold" }, "如果有更好的想法可以点击页面底部的Github链接提交 issue，如果喜欢这个项目可以给予 star ，有兴趣可以一起参与这个项目。"),
       preact.h( 'div', { class: "paragraph" }, "另外你可以直接通过链接分享你正在阅读的代码给其他人，比如直接打开下面的链接就会自动添加 CR 的代码到你的阅读列表中"),
-      preact.h( 'a', { href: "https://cr.js.org/#/code/echosoar/cr" }, "https://cr.js.org/#/code/echosoar/cr")
+      preact.h( 'a', { href: "https://cr.js.org/#/code/echosoar/cr", target: "_blank" }, "https://cr.js.org/#/code/echosoar/cr")
     );
   };
 
