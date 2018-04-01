@@ -27,11 +27,13 @@ class RepoBranch extends Component {
     let {user, repo} = this.props.urlParams;
 
     return <div class="branchList">
-      <div class="title">Branch</div>
+      <div class="title">Branch List</div>
       <div class="return" onClick={this.handleBack.bind(this)}>Back</div>
       <a href={'#/branch/' + user + '/' + repo} class="add">+ Add Branch</a>
+      <div class="user">
+        <div class="listContainer">{user} / {repo}</div>
+      </div>
       <div class="listContainer">
-        <div class="user">{user} / {repo}</div>
         { this.getList() }
       </div>
     </div>

@@ -9608,13 +9608,16 @@ var SelectBranch = (function (Component$$1) {
     var repo = ref$1.repo;
     var sha = ref$1.sha;
     return preact.h( 'div', { class: "selectBranch" },
-      preact.h( 'div', { class: "title" }, "Select", ['Branch', 'Commit', 'Hash'].map(function (type) {
+      preact.h( 'div', { class: "title" }, "By", ['Branch', 'Commit', 'Hash'].map(function (type) {
             return preact.h( 'span', { class: type == nowType? 'selected': '', onClick: this$1.changeType.bind(this$1, type) }, type);
           })
       ),
       preact.h( 'div', { class: "return", onClick: this.handleBack.bind(this) }, "Back"),
+      preact.h( 'div', { class: "user" },
+        preact.h( 'div', { class: "listContainer" }, user, " / ", repo)
+      ),
       preact.h( 'div', { class: "listContainer" },
-        preact.h( 'div', { class: "user" }, user, " / ", repo),
+        
         isLoading && preact.h( Loading, null ),
         !isLoading && nowType == 'Branch' && branches!=null && branches.map(function (branch) {
             return preact.h( 'div', { class: "branch", onClick: this$1.addCommit.bind(this$1, branch.name, branch.commit.sha) },
@@ -9754,11 +9757,13 @@ var RepoBranch = (function (Component$$1) {
     var repo = ref.repo;
 
     return preact.h( 'div', { class: "branchList" },
-      preact.h( 'div', { class: "title" }, "Branch"),
+      preact.h( 'div', { class: "title" }, "Branch List"),
       preact.h( 'div', { class: "return", onClick: this.handleBack.bind(this) }, "Back"),
       preact.h( 'a', { href: '#/branch/' + user + '/' + repo, class: "add" }, "+ Add Branch"),
+      preact.h( 'div', { class: "user" },
+        preact.h( 'div', { class: "listContainer" }, user, " / ", repo)
+      ),
       preact.h( 'div', { class: "listContainer" },
-        preact.h( 'div', { class: "user" }, user, " / ", repo),
         this.getList()
       )
     )

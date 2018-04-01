@@ -42,8 +42,6 @@ body {
   box-sizing: border-box;
   max-width: 480px;
   border: 0;
-  border-left: 1px solid #eee;
-  border-right: 1px solid #eee;
 }
 a {
   text-decoration: none;
@@ -996,20 +994,11 @@ a {
   font-weight: bold;
 }
 .selectBranch .user {
-  padding: 4px 12px;
-  font-size: 16px;
+  padding: 8px 12px;
+  font-size: 12px;
   font-weight: bold;
-  color: #333;
-  background-color: #efe;
-  border-bottom: 1px solid #eee;
-}
-.selectBranch .repo {
-  padding: 4px 12px;
-  font-size: 16px;
-  font-weight: bold;
-  word-break: break-all;
-  color: #333;
-  background-color: #efe;
+  color: #ffffff;
+  background-color: #3e508e;
   border-bottom: 1px solid #eee;
 }
 .selectBranch .branch {
@@ -1075,7 +1064,7 @@ a {
   line-height: 38px;
   font-size: 13px;
   text-align: center;
-  background: #3c3;
+  background: #6ba06b;
   color: #fff;
   border-radius: 3px;
   outline: none;
@@ -1092,18 +1081,45 @@ a {
   top: 0;
   right: 0;
   line-height: 36px;
-  width: 96px;
+  width: 90px;
   text-align: center;
-  font-size: 13px;
-  color: #666;
+  font-size: 12px;
+  color: #da7878;
+  font-weight: bold;
 }
 .repoList .listItem {
+  position: relative;
   display: block;
-  border-bottom: 1px solid #eee;
   padding: 12px;
+  padding-left: 32px;
 }
-.repoList .listItem:last-child {
-  border-bottom: 0;
+.repoList .listItem::before {
+  content: ' ';
+  position: absolute;
+  height: 100%;
+  top: 0;
+  left: 15px;
+  width: 1px;
+  background: #eee;
+}
+.repoList .listItem::after {
+  content: ' ';
+  position: absolute;
+  height: 9px;
+  top: 20px;
+  left: 11px;
+  width: 9px;
+  border-radius: 50%;
+  background: #fc9;
+}
+.repoList .listItem:nth-child(n)::after {
+  background: #fc9;
+}
+.repoList .listItem:nth-child(2n)::after {
+  background: #69daf7;
+}
+.repoList .listItem:nth-child(3n)::after {
+  background: #b1d6c8;
 }
 .repoList .listItem .listName {
   line-height: 24px;
@@ -1112,13 +1128,23 @@ a {
   color: #333;
 }
 .repoList .listItem .listInfo {
-  line-height: 24px;
+  position: relative;
+  line-height: 20px;
   font-size: 12px;
-  color: #666;
+  color: #999;
+}
+.repoList .listItem .listInfo::before {
+  content: ' ';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 64%;
 }
 .repoList .introduction {
   padding: 12px;
   font-size: 13px;
+  max-width: 640px;
+  margin: 0 auto;
 }
 .repoList .introduction .howTo {
   border-left: 4px solid #cdf;
@@ -1155,35 +1181,53 @@ a {
   top: 0;
   right: 0;
   line-height: 36px;
-  width: 96px;
+  width: 90px;
   text-align: center;
-  font-size: 13px;
-  color: #666;
+  font-size: 12px;
+  color: #da7878;
+  font-weight: bold;
 }
 .branchList .user {
-  padding: 4px 12px;
-  font-size: 16px;
+  padding: 8px 12px;
+  font-size: 12px;
   font-weight: bold;
-  color: #333;
-  background-color: #efe;
-  border-bottom: 1px solid #eee;
-}
-.branchList .repo {
-  padding: 4px 12px;
-  font-size: 16px;
-  font-weight: bold;
-  word-break: break-all;
-  color: #333;
-  background-color: #efe;
+  color: #ffffff;
+  background-color: #3e508e;
   border-bottom: 1px solid #eee;
 }
 .branchList .branchItem {
+  position: relative;
   display: block;
-  border-bottom: 1px solid #eee;
   padding: 12px;
+  padding-left: 32px;
 }
-.branchList .branchItem:last-child {
-  border-bottom: 0;
+.branchList .branchItem::before {
+  content: ' ';
+  position: absolute;
+  height: 100%;
+  top: 0;
+  left: 15px;
+  width: 1px;
+  background: #eee;
+}
+.branchList .branchItem::after {
+  content: ' ';
+  position: absolute;
+  height: 9px;
+  top: 20px;
+  left: 11px;
+  width: 9px;
+  border-radius: 50%;
+  background: #fc9;
+}
+.branchList .branchItem:nth-child(n)::after {
+  background: #fc9;
+}
+.branchList .branchItem:nth-child(2n)::after {
+  background: #69daf7;
+}
+.branchList .branchItem:nth-child(3n)::after {
+  background: #b1d6c8;
 }
 .branchList .branchItem .branchName {
   line-height: 24px;
@@ -1192,7 +1236,7 @@ a {
   color: #333;
 }
 .branchList .branchItem .branchInfo {
-  line-height: 24px;
+  line-height: 20px;
   font-size: 12px;
-  color: #666;
+  color: #999;
 }

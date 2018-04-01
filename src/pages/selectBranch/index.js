@@ -95,15 +95,18 @@ class SelectBranch extends Component {
     let {user, repo, sha} = this.props.urlParams;
     return <div class="selectBranch">
       <div class="title">
-        Select{
+        By{
           ['Branch', 'Commit', 'Hash'].map(type => {
             return <span class={type == nowType? 'selected': ''} onClick={this.changeType.bind(this, type)}>{type}</span>;
           })
         }
       </div>
       <div class="return" onClick={this.handleBack.bind(this)}>Back</div>
+      <div class="user">
+        <div class="listContainer">{user} / {repo}</div>
+      </div>
       <div class="listContainer">
-        <div class="user">{user} / {repo}</div>
+        
         {
           isLoading && <Loading />
         }

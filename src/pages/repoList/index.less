@@ -8,20 +8,44 @@
       top: 0;
       right: 0;
       line-height: 36px;
-      width: 96px;
+      width: 90px;
       text-align: center;
-      font-size: 13px;
-      color: #666;
+      font-size: 12px;
+      color: #da7878;
+      font-weight: bold
     }
   }
 
   .listItem {
+    position: relative;
     display: block;
-    border-bottom: 1px solid #eee;
     padding: 12px;
-    &:last-child {
-      border-bottom: 0;
+    padding-left: 32px;
+    
+    &::before {
+      content: ' ';
+      position: absolute;
+      height: 100%;
+      top: 0;
+      left: 15px;
+      width: 1px;
+      background: #eee;
     }
+
+    &::after {
+      content: ' ';
+      position: absolute;
+      height: 9px;
+      top: 20px;
+      left: 11px;
+      width: 9px;
+      border-radius: 50%;
+      background: #fc9;
+    }
+
+    &:nth-child(n) { &::after { background: #fc9; } }
+    &:nth-child(2n) { &::after { background: rgb(105, 218, 247); } }
+    &:nth-child(3n) { &::after { background: rgb(177, 214, 200); } }
 
     .listName {
       line-height: 24px;
@@ -30,15 +54,26 @@
       color: #333;
     }
     .listInfo {
-      line-height: 24px;
+      position: relative;
+      line-height: 20px;
       font-size: 12px;
-      color: #666;
+      color: #999;
+      
+      &::before {
+        content: ' ';
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 64%;
+      }
     }
   }
 
   .introduction {
     padding: 12px;
     font-size: 13px;
+    max-width: 640px;
+    margin: 0 auto;
 
     .howTo {
       border-left: 4px solid #cdf;
