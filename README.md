@@ -43,5 +43,8 @@ https://cr.js.org
 - [x] Add introduction to empty home page
 - [x] Add github link
 - [x] Rewrite style
+- [ ] Loading
+- [ ] Auto scroll
+- [ ] Night mode
 
 © 2018 echosoar

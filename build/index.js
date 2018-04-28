@@ -9356,16 +9356,21 @@ var Code$2 = (function (Component$$1) {
         preact.h( 'div', { class: "confirmTitle" }, "Error"),
         preact.h( 'div', { class: "confirmText" }, "Github api rate limit exceeded")
       ), 'alert');
+    } else {
+      console.log(error);
     }
   };
 
-  Code.prototype.getRemoteByPath = function getRemoteByPath (path) {
+  Code.prototype.getRemoteByPath = function getRemoteByPath (fullPath) {
     var this$1 = this;
+
 
     var ref = this.props.urlParams;
     var user = ref.user;
     var repo = ref.repo;
     var branch = ref.sha;
+
+    var path = fullPath.split('/').pop();
 
     var cachePath = GlobalCache$1.get('path', path);
     if (cachePath) {
@@ -9377,10 +9382,12 @@ var Code$2 = (function (Component$$1) {
     this.setState({
       loading: true
     });
-    axios.get("//api.github.com/repos/" + user + "/" + repo + "/contents/" + path)
+    axios.get("//api.github.com/repos/" + user + "/" + repo + "/contents/" + fullPath)
     .then(function (response) {
+
       var sha = response.data.sha;
       var data = libbase64.decode(response.data.content).toString();
+
       GlobalCache$1.add('code', sha, {
         branch: [user,repo,branch].join('/'),
         sha: sha,
@@ -9695,6 +9702,19 @@ var RepoList = (function (Component$$1) {
 
   RepoList.prototype.introduction = function introduction () {
     return preact.h( 'div', { class: "introduction" },
+      preact.h( 'div', { class: "introductionTitle" }, "Guidelines for use"),
+      preact.h( 'div', { class: "paragraph" }, "CR is a Web application that helps you read Github code more easily and comfortably."),
+      preact.h( 'div', { class: "paragraph bold" }, "How to use？"),
+      preact.h( 'div', { class: "howTo" },
+        preact.h( 'div', { class: "paragraph list" }, "1. Click \"Add Repo\" in the upper right corner to add a Git repository to this application"),
+        preact.h( 'div', { class: "paragraph list" }, "2. CR will help you pull his branch, recent Commit, or you manually enter the version of the SHA string, from which you can choose a branch of code you wish to read.")
+      ),
+      preact.h( 'div', { class: "paragraph" }, "After a simple two-step process above, you can happily read the code on your mobile device."),
+      preact.h( 'div', { class: "paragraph" }, "Currently, CR has made special optimizations for Markdown files, and the code has also been adapted to read on the mobile."),
+      preact.h( 'div', { class: "paragraph bold" }, "If you have a better idea, you can submit an issue by clicking on the Github link at the bottom of the page. If you like this project you can give star, and you are interested in participating in this project."),
+      preact.h( 'div', { class: "paragraph" }, "In addition, you can directly share the code you are reading to others by link. For example, directly opening the link below will automatically add the CR code to your reading list."),
+      preact.h( 'a', { href: "https://cr.js.org/#/code/echosoar/cr", target: "_blank" }, "https://cr.js.org/#/code/echosoar/cr"),
+
       preact.h( 'div', { class: "introductionTitle" }, "使用指引"),
       preact.h( 'div', { class: "paragraph" }, "CR是一个无后端的Web应用，能够帮助你更加方便、舒适地阅读Github的代码。"),
       preact.h( 'div', { class: "paragraph bold" }, "如何使用？"),
@@ -9702,7 +9722,6 @@ var RepoList = (function (Component$$1) {
         preact.h( 'div', { class: "paragraph list" }, "1. 点击右上角的 “Add Repo” 添加一个Git仓库到本应用。"),
         preact.h( 'div', { class: "paragraph list" }, "2. CR会帮您拉取他的分支、最近Commit，或者是你手动输入版本的SHA字符串，你可以从中选取一个你希望阅读的代码分支。")
       ),
-      
       preact.h( 'div', { class: "paragraph" }, "经过上面简单的两步你就可以愉快地在移动设备（手机、平板）上面阅读代码了。"),
       preact.h( 'div', { class: "paragraph" }, "目前CR对于Markdown文件做了特殊的优化展示，对于代码也进行了适合在移动端阅读的适配。"),
       preact.h( 'div', { class: "paragraph bold" }, "如果有更好的想法可以点击页面底部的Github链接提交 issue，如果喜欢这个项目可以给予 star ，有兴趣可以一起参与这个项目。"),

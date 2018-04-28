@@ -92,11 +92,16 @@ class Code extends Component {
         <div class="confirmTitle">Error</div>
         <div class="confirmText">Github api rate limit exceeded</div>
       </div>, 'alert');
+    } else {
+      console.log(error);
     }
   }
 
-  getRemoteByPath(path) {
+  getRemoteByPath(fullPath) {
+
     let { user, repo, sha: branch } = this.props.urlParams;
+
+    let path = fullPath.split('/').pop();
 
     let cachePath = GlobalCache.get('path', path);
     if (cachePath) {
@@ -108,10 +113,12 @@ class Code extends Component {
     this.setState({
       loading: true
     });
-    axios.get(`//api.github.com/repos/${user}/${repo}/contents/` + path)
+    axios.get(`//api.github.com/repos/${user}/${repo}/contents/` + fullPath)
     .then((response) => {
+
       let sha = response.data.sha;
       let data = libbase64.decode(response.data.content).toString();
+
       GlobalCache.add('code', sha, {
         branch: [user,repo,branch].join('/'),
         sha,
