@@ -1076,15 +1076,15 @@ a {
 }
 .repoList a.add {
   display: block;
-  position: fixed;
-  z-index: 3;
-  top: 0;
-  right: 0;
+  position: relative;
+  margin: 10px auto;
   line-height: 36px;
-  width: 90px;
+  width: 94%;
+  border-radius: 3px;
+  color: #fff;
   text-align: center;
   font-size: 12px;
-  color: #da7878;
+  background-color: #da7878;
   font-weight: bold;
 }
 .repoList .listItem {
@@ -1092,6 +1092,7 @@ a {
   display: block;
   padding: 12px;
   padding-left: 32px;
+  user-select: none;
 }
 .repoList .listItem::before {
   content: ' ';
@@ -1176,15 +1177,15 @@ a {
 }
 .branchList a.add {
   display: block;
-  position: fixed;
-  z-index: 3;
-  top: 0;
-  right: 0;
+  position: relative;
+  margin: 10px auto;
   line-height: 36px;
-  width: 90px;
+  width: 94%;
+  border-radius: 3px;
+  color: #706464;
   text-align: center;
   font-size: 12px;
-  color: #da7878;
+  background-color: #ecf8fa;
   font-weight: bold;
 }
 .branchList .user {

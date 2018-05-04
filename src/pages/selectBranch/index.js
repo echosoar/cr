@@ -2,6 +2,7 @@
 import { Component } from 'preact'; /** @jsx h */
 import Loading from '_/components/loading/index.js';
 import Storage from '_/utils/storage.js';
+import Language from '_/utils/language.js';
 import axios from 'axios/dist/axios';
 import './index.less';
 
@@ -95,13 +96,13 @@ class SelectBranch extends Component {
     let {user, repo, sha} = this.props.urlParams;
     return <div class="selectBranch">
       <div class="title">
-        By{
+        { Language('by') }{
           ['Branch', 'Commit', 'Hash'].map(type => {
-            return <span class={type == nowType? 'selected': ''} onClick={this.changeType.bind(this, type)}>{type}</span>;
+            return <span class={type == nowType? 'selected': ''} onClick={this.changeType.bind(this, type)}>{Language(type.toLowerCase())}</span>;
           })
         }
       </div>
-      <div class="return" onClick={this.handleBack.bind(this)}>Back</div>
+      <div class="return" onClick={this.handleBack.bind(this)}>{ Language('back') }</div>
       <div class="user">
         <div class="listContainer">{user} / {repo}</div>
       </div>
@@ -128,8 +129,8 @@ class SelectBranch extends Component {
         }
         {
           nowType == 'Hash' && <div class="hash">
-            <textarea placeholder="Please enter the hash" id="selectBranchTextarea">{ sha }</textarea>
-            <div class="button" onClick={this.addHashHandle.bind(this)}>Confirm</div>
+            <textarea placeholder={ Language('enterHashTip') } id="selectBranchTextarea">{ sha }</textarea>
+            <div class="button" onClick={this.addHashHandle.bind(this)}>{ Language('confirm') }</div>
           </div>
         }
       </div>

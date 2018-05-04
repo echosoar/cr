@@ -34,7 +34,8 @@ https://cr.js.org
 - [x] Download or skip to github for not support file 
 - [ ] Delete repo
 - [ ] Delete branch
-- [ ] Setting             
+- [ ] Setting  
+  - [ ] Language           
   - [ ] Font size
   - [ ] Background color
 - [ ] Load the newest branch

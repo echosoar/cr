@@ -1120,6 +1120,115 @@ var Base = (function (Component$$1) {
   return Base;
 }(Component));
 
+var set = function (name, value) {
+  var settingData = window.localStorage.getItem('crSetting') || '{}';
+  try {
+    settingData = JSON.parse(settingData);
+  } catch (e) {
+    settingData = {};
+  }
+  settingData[name] = value;
+};
+
+var get = function (name) {
+  var settingData = window.localStorage.getItem('crSetting') || '{}';
+  try {
+    settingData = JSON.parse(settingData);
+  } catch (e) {
+    settingData = {};
+  }
+  return settingData[name];
+};
+
+var SettingData = {
+  set: set,
+  get: get
+};
+
+var data = {
+  addBranch: {
+    en: 'Add Branch',
+    cn: '添加新分支'
+  },
+  addRepo: {
+    en: 'Add Repo',
+    cn: '添加新仓库'
+  },
+  addNewRepo: {
+    en: 'Add New Repositorie',
+    cn: '添加新仓库'
+  },
+  addNewRepoTip: {
+    en: 'Please enter the repositorie\'s address \nE.g: https://github.com/echosoar/cr',
+    cn: '请输入github仓库地址 \n例如: https://github.com/echosoar/cr'
+  },
+  back: {
+    en: 'Back',
+    cn: '返回'
+  },
+  branch: {
+    en: 'Branch',
+    cn: '分支'
+  },
+  branchList: {
+    en: 'Branch List',
+    cn: '分支列表'
+  },
+  by: {
+    en: 'By',
+    cn: '通过'
+  },
+  cancel: {
+    en: 'Cancel',
+    cn: '取消'
+  },
+  close: {
+    en: 'Close',
+    cn: '关闭'
+  },
+  commit: {
+    en: 'Commit',
+    cn: '提交记录'
+  },
+  confirm: {
+    en: 'Confirm',
+    cn: '确认'
+  },
+  cr: {
+    en: 'Code Reader',
+    cn: '代码阅读器'
+  },
+  enterHashTip: {
+    en: 'Please enter the hash',
+    cn: '请输入哈希（hash）值'
+  },
+  fileTree: {
+    en: 'Tree',
+    cn: '文件树'
+  },
+  hash: {
+    en: 'Hash',
+    cn: '哈希值'
+  },
+  openLink: {
+    en: 'Open Link',
+    cn: '打开链接'
+  },
+  recentOpen: {
+    en: 'Recent Open',
+    cn: '最近打开'
+  },
+  toc: {
+    en: 'TOC',
+    cn: '目录'
+  }
+};
+
+var lang = function (type) {
+  var language = SettingData.get['crlang'] || 'cn';
+  return data[type] && data[type][language] || type || '';
+};
+
 'use strict';
 var Confirm = (function (Component$$1) {
   function Confirm(props) {
@@ -1187,9 +1296,9 @@ var Confirm = (function (Component$$1) {
               ele,
               
               !isAlert ? preact.h( 'div', { class: "btnContainer" },
-                  preact.h( 'div', { class: "btnOk", onClick: this.ok.bind(this) }, ok && ok.text || 'Confirm'),
-                  preact.h( 'div', { class: "btnCancel", onClick: this.close.bind(this) }, cancel && cancel.text || 'Cancel')
-                ): preact.h( 'div', { class: "btnClose", onClick: this.close.bind(this) }, "Close")
+                  preact.h( 'div', { class: "btnOk", onClick: this.ok.bind(this) }, ok && ok.text || lang('confirm')),
+                  preact.h( 'div', { class: "btnCancel", onClick: this.close.bind(this) }, cancel && cancel.text || lang('cancel'))
+                ): preact.h( 'div', { class: "btnClose", onClick: this.close.bind(this) }, lang('close'))
             )
           )
     );
@@ -1229,10 +1338,10 @@ var Create = (function (Component$$1) {
   
   Create.prototype.render = function render$$1 () {
     return preact.h( 'div', { class: "create" },
-      preact.h( 'div', { class: "title" }, "Add new repositorie"),
-      preact.h( 'div', { class: "return", onClick: this.handleBack.bind(this) }, "Back"),
-      preact.h( 'textarea', { placeholder: "Please enter the repositorie's address\nE.g: https://github.com/echosoar/cr", id: "addTextarea" }),
-      preact.h( 'div', { class: "button", onClick: this.add.bind(this) }, "Confirm")
+      preact.h( 'div', { class: "title" }, lang('addNewRepo')),
+      preact.h( 'div', { class: "return", onClick: this.handleBack.bind(this) }, lang('back')),
+      preact.h( 'textarea', { placeholder: lang('addNewRepoTip'), id: "addTextarea" }),
+      preact.h( 'div', { class: "button", onClick: this.add.bind(this) }, lang('confirm'))
     )
   };
 
@@ -3333,16 +3442,16 @@ var Toc = (function (Component$$1) {
     var nowBranch = [user, repo, sha].join('/');
     var recent = GlobalCache$1.get('code');
     return preact.h( 'div', { class: "toc" },
-      !isOpen && preact.h( 'div', { class: "open", onClick: this.changeOpen.bind(this, true) }, "Toc"),
+      !isOpen && preact.h( 'div', { class: "open", onClick: this.changeOpen.bind(this, true) }, lang('toc')),
       preact.h( 'div', { class: isOpen?'tocContainer tocContainerOpen': 'tocContainer' },
         preact.h( 'div', { class: "treeContainer" },
           preact.h( 'div', { class: "close" },
-            preact.h( 'span', { onClick: this.changeOpen.bind(this, false) }, "Close")
+            preact.h( 'span', { onClick: this.changeOpen.bind(this, false) }, lang('close'))
           ),
           preact.h( 'div', { class: "tocTree" },
             preact.h( 'div', { class: "tocTreeRepo" }, user, " / ", repo),
             recent && preact.h( 'div', null,
-              preact.h( 'div', { class: "tocTreeTitle" }, "Recent"),
+              preact.h( 'div', { class: "tocTreeTitle" }, lang('recentOpen')),
               recent.slice(0, 5).map(function (item) {
                   var className = 'treeItemFile';
                   var otherBranch = null;
@@ -3353,7 +3462,7 @@ var Toc = (function (Component$$1) {
                   return preact.h( 'div', { class: className, onClick: this$1.fileClick.bind(this$1, item.data.sha, item.data.path, item.data.fullPath, otherBranch) }, item.data.path);
                 })
             ),
-            preact.h( 'div', { class: "tocTreeTitle" }, "Tree"),
+            preact.h( 'div', { class: "tocTreeTitle" }, lang('fileTree')),
             tree && this.renderTree(sha)
           )
         )
@@ -3795,14 +3904,14 @@ var TextRender = (function (Component$$1) {
       }
 
       window.crConfirm && window.crConfirm.open(preact.h( 'div', null,
-        preact.h( 'div', { class: "confirmTitle" }, "Open Link"),
+        preact.h( 'div', { class: "confirmTitle" }, lang('openLink')),
         preact.h( 'div', { class: "confirmText" }, link),
         gitRepoLink && preact.h( 'div', { class: "confirmTip", onClick: function () {
             window.crConfirm.close();
             location.href = gitRepoLink;
           } }, "This is a github repo", preact.h( 'br', null ), "Add this repo to your cr list?")
       ), {
-          text: 'Open Link',
+          text: lang('openLink'),
           handle: function () {
             window.open(link);
           }
@@ -9487,8 +9596,8 @@ var Code = (function (Component$$1) {
     var file = ref$1.file;
 
     return preact.h( 'div', { class: "code" },
-      preact.h( 'div', { class: "title" }, "Code"),
-      preact.h( 'a', { href: "#" }, preact.h( 'div', { class: "return" }, "Back")),
+      preact.h( 'div', { class: "title" }, lang('cr')),
+      preact.h( 'a', { href: "#" }, preact.h( 'div', { class: "return" }, lang('back'))),
       preact.h( Toc, { sha: sha, user: user, repo: repo, fileClick: this.fileClick.bind(this) }),
       preact.h( 'div', { class: "codeContent" },
         file && preact.h( Code$2, { file: file, urlParams: this.props.urlParams })
@@ -9615,11 +9724,12 @@ var SelectBranch = (function (Component$$1) {
     var repo = ref$1.repo;
     var sha = ref$1.sha;
     return preact.h( 'div', { class: "selectBranch" },
-      preact.h( 'div', { class: "title" }, "By", ['Branch', 'Commit', 'Hash'].map(function (type) {
-            return preact.h( 'span', { class: type == nowType? 'selected': '', onClick: this$1.changeType.bind(this$1, type) }, type);
+      preact.h( 'div', { class: "title" },
+        lang('by'), ['Branch', 'Commit', 'Hash'].map(function (type) {
+            return preact.h( 'span', { class: type == nowType? 'selected': '', onClick: this$1.changeType.bind(this$1, type) }, lang(type.toLowerCase()));
           })
       ),
-      preact.h( 'div', { class: "return", onClick: this.handleBack.bind(this) }, "Back"),
+      preact.h( 'div', { class: "return", onClick: this.handleBack.bind(this) }, lang('back')),
       preact.h( 'div', { class: "user" },
         preact.h( 'div', { class: "listContainer" }, user, " / ", repo)
       ),
@@ -9639,8 +9749,8 @@ var SelectBranch = (function (Component$$1) {
             )
           }),
         nowType == 'Hash' && preact.h( 'div', { class: "hash" },
-            preact.h( 'textarea', { placeholder: "Please enter the hash", id: "selectBranchTextarea" }, sha),
-            preact.h( 'div', { class: "button", onClick: this.addHashHandle.bind(this) }, "Confirm")
+            preact.h( 'textarea', { placeholder: lang('enterHashTip'), id: "selectBranchTextarea" }, sha),
+            preact.h( 'div', { class: "button", onClick: this.addHashHandle.bind(this) }, lang('confirm'))
           )
       )
     )
@@ -9682,6 +9792,7 @@ var format$1 =  function(date, fmt) {
 };
 
 'use strict';
+
 var RepoList = (function (Component$$1) {
   function RepoList () {
     Component$$1.apply(this, arguments);
@@ -9734,8 +9845,8 @@ var RepoList = (function (Component$$1) {
 
     var repoList = Storage.RepoList();
     return preact.h( 'div', { class: "repoList" },
-      preact.h( 'div', { class: "title" }, "Code Reader"),
-      preact.h( 'a', { href: "#/add", class: "add" }, "+ Add Repo"),
+      preact.h( 'div', { class: "title" }, lang('cr')),
+      preact.h( 'a', { href: "#/add", class: "add" }, "+ ", lang('addRepo')),
       repoList && repoList.length ? this.getList(repoList) : this.introduction()
     )
   };
@@ -9776,15 +9887,16 @@ var RepoBranch = (function (Component$$1) {
     var repo = ref.repo;
 
     return preact.h( 'div', { class: "branchList" },
-      preact.h( 'div', { class: "title" }, "Branch List"),
-      preact.h( 'div', { class: "return", onClick: this.handleBack.bind(this) }, "Back"),
-      preact.h( 'a', { href: '#/branch/' + user + '/' + repo, class: "add" }, "+ Add Branch"),
+      preact.h( 'div', { class: "title" }, lang('branchList')),
+      preact.h( 'div', { class: "return", onClick: this.handleBack.bind(this) }, lang('back')),
+      
       preact.h( 'div', { class: "user" },
         preact.h( 'div', { class: "listContainer" }, user, " / ", repo)
       ),
       preact.h( 'div', { class: "listContainer" },
         this.getList()
-      )
+      ),
+      preact.h( 'a', { href: '#/branch/' + user + '/' + repo, class: "add" }, "+ ", lang('addBranch'))
     )
   };
 

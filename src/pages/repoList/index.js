@@ -1,7 +1,9 @@
 'use strict';
+
 import { Component } from 'preact'; /** @jsx h */
 import TimeFormat from '_/utils/timeFormat.js';
 import Storage from '_/utils/storage.js';
+import Language from '_/utils/language.js';
 import './index.less';
 
 class RepoList extends Component {
@@ -51,8 +53,8 @@ class RepoList extends Component {
 
     let repoList = Storage.RepoList();
     return <div class="repoList">
-      <div class="title">Code Reader</div>
-      <a href="#/add" class="add">+ Add Repo</a>
+      <div class="title">{ Language('cr') }</div>
+      <a href="#/add" class="add">+ { Language('addRepo') }</a>
       {
         repoList && repoList.length ? this.getList(repoList) : this.introduction()
       }

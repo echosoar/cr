@@ -1,5 +1,6 @@
 'use strict';
 import { Component } from 'preact'; /** @jsx h */
+import Language from '_/utils/language.js';
 import './index.less';
 
 class Confirm extends Component {
@@ -63,9 +64,9 @@ class Confirm extends Component {
               
               {
                 !isAlert ? <div class="btnContainer">
-                  <div class="btnOk" onClick={this.ok.bind(this)}>{ ok && ok.text || 'Confirm' }</div>
-                  <div class="btnCancel" onClick={this.close.bind(this)}>{ cancel && cancel.text || 'Cancel' }</div>
-                </div>: <div class="btnClose" onClick={this.close.bind(this)}>Close</div>
+                  <div class="btnOk" onClick={this.ok.bind(this)}>{ ok && ok.text || Language('confirm') }</div>
+                  <div class="btnCancel" onClick={this.close.bind(this)}>{ cancel && cancel.text || Language('cancel') }</div>
+                </div>: <div class="btnClose" onClick={this.close.bind(this)}>{ Language('close') }</div>
               }
             </div>
           </div>

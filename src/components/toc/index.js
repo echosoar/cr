@@ -2,6 +2,7 @@
 import { Component } from 'preact'; /** @jsx h */
 import axios from 'axios/dist/axios';
 import GlobalCache from '_/utils/globalCache.js';
+import Language from '_/utils/language.js';
 import './index.less';
 
 class Toc extends Component {
@@ -175,16 +176,16 @@ class Toc extends Component {
     let nowBranch = [user, repo, sha].join('/');
     let recent = GlobalCache.get('code');
     return <div class="toc">
-      { !isOpen && <div class="open" onClick={this.changeOpen.bind(this, true)}>Toc</div> }
+      { !isOpen && <div class="open" onClick={this.changeOpen.bind(this, true)}>{ Language('toc') }</div> }
       <div class={isOpen?'tocContainer tocContainerOpen': 'tocContainer'}>
         <div class="treeContainer">
           <div class="close">
-            <span onClick={this.changeOpen.bind(this, false)}>Close</span>
+            <span onClick={this.changeOpen.bind(this, false)}>{ Language('close') }</span>
           </div>
           <div class="tocTree">
             <div class="tocTreeRepo">{user} / {repo}</div>
             { recent && <div>
-              <div class="tocTreeTitle">Recent</div>
+              <div class="tocTreeTitle">{ Language('recentOpen') }</div>
               {
                 recent.slice(0, 5).map(item => {
                   let className = 'treeItemFile';
@@ -197,7 +198,7 @@ class Toc extends Component {
                 })
               }
             </div>}
-            <div class="tocTreeTitle">Tree</div>
+            <div class="tocTreeTitle">{ Language('fileTree') }</div>
             {
               tree && this.renderTree(sha)
             }

@@ -2,6 +2,7 @@
 import { Component } from 'preact'; /** @jsx h */
 import TimeFormat from '_/utils/timeFormat.js';
 import Storage from '_/utils/storage.js';
+import Language from '_/utils/language.js';
 import './index.less';
 
 class RepoBranch extends Component {
@@ -27,15 +28,16 @@ class RepoBranch extends Component {
     let {user, repo} = this.props.urlParams;
 
     return <div class="branchList">
-      <div class="title">Branch List</div>
-      <div class="return" onClick={this.handleBack.bind(this)}>Back</div>
-      <a href={'#/branch/' + user + '/' + repo} class="add">+ Add Branch</a>
+      <div class="title">{ Language('branchList') }</div>
+      <div class="return" onClick={this.handleBack.bind(this)}>{ Language('back') }</div>
+      
       <div class="user">
         <div class="listContainer">{user} / {repo}</div>
       </div>
       <div class="listContainer">
         { this.getList() }
       </div>
+      <a href={'#/branch/' + user + '/' + repo} class="add">+ { Language('addBranch') }</a>
     </div>
   }
 }

@@ -1,6 +1,6 @@
 'use strict';
 import { Component } from 'preact'; /** @jsx h */
-
+import Language from '_/utils/language.js';
 import './index.less';
 
 class Create extends Component {
@@ -26,10 +26,10 @@ class Create extends Component {
   
   render() {
     return <div class="create">
-      <div class="title">Add new repositorie</div>
-      <div class="return" onClick={this.handleBack.bind(this)}>Back</div>
-      <textarea placeholder="Please enter the repositorie's address\nE.g: https://github.com/echosoar/cr" id="addTextarea"></textarea>
-      <div class="button" onClick={this.add.bind(this)}>Confirm</div>
+      <div class="title">{ Language('addNewRepo') }</div>
+      <div class="return" onClick={this.handleBack.bind(this)}>{ Language('back') }</div>
+      <textarea placeholder={ Language('addNewRepoTip') } id="addTextarea"></textarea>
+      <div class="button" onClick={this.add.bind(this)}>{ Language('confirm') }</div>
     </div>
   }
 }

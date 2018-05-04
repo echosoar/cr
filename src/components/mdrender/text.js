@@ -1,6 +1,7 @@
 'use strict';
 import { Component } from 'preact'; /** @jsx h */
 import path from 'path';
+import Language from '_/utils/language.js';
 import './text.less';
 
 
@@ -49,7 +50,7 @@ class TextRender extends Component {
       }
 
       window.crConfirm && window.crConfirm.open(<div>
-        <div class="confirmTitle">Open Link</div>
+        <div class="confirmTitle">{ Language('openLink') }</div>
         <div class="confirmText">{ link }</div>
         { gitRepoLink && <div class="confirmTip" onClick={() => {
             window.crConfirm.close();
@@ -59,7 +60,7 @@ class TextRender extends Component {
           Add this repo to your cr list?
         </div> }
       </div>, {
-          text: 'Open Link',
+          text: Language('openLink'),
           handle: () => {
             window.open(link);
           }
