@@ -1128,6 +1128,7 @@ var set = function (name, value) {
     settingData = {};
   }
   settingData[name] = value;
+  window.localStorage.setItem('crSetting', JSON.stringify(settingData));
 };
 
 var get = function (name) {
@@ -1206,6 +1207,10 @@ var data = {
     en: 'Tree',
     cn: '文件树'
   },
+  fontSize: {
+    en: 'Font Size',
+    cn: '文字大小'
+  },
   hash: {
     en: 'Hash',
     cn: '哈希值'
@@ -1218,6 +1223,10 @@ var data = {
     en: 'Recent Open',
     cn: '最近打开'
   },
+  settingTitle:{
+    en: 'Setting',
+    cn: '设置'
+  },
   toc: {
     en: 'TOC',
     cn: '目录'
@@ -1225,7 +1234,7 @@ var data = {
 };
 
 var lang = function (type) {
-  var language = SettingData.get['crlang'] || 'cn';
+  var language = SettingData.get('crlang') || 'cn';
   return data[type] && data[type][language] || type || '';
 };
 
@@ -3870,6 +3879,7 @@ var TextRender = (function (Component$$1) {
   TextRender.prototype.constructor = TextRender;
 
   TextRender.prototype.shouldComponentUpdate = function shouldComponentUpdate (newProps) {
+    if (newProps.fontSize != this.props.fontSize) { return true; }
     if (newProps.data == this.props.data) { return false; }
   };
 
@@ -4011,11 +4021,97 @@ var TextRender = (function (Component$$1) {
     this.toc = [];
     var ref = this.props;
     var data = ref.data;
+    var fontSize = ref.fontSize;
     data = this.formatData(data);
-    return preact.h( 'div', { class: "mdtextrender", id: "mdtextrender", dangerouslySetInnerHTML: {__html: marked(data, { renderer: this.renderer })} });
+    return preact.h( 'div', { class: "mdtextrender", style: {fontSize: fontSize + 'px'}, id: "mdtextrender", dangerouslySetInnerHTML: {__html: marked(data, { renderer: this.renderer })} });
   };
 
   return TextRender;
+}(Component));
+
+'use strict';
+var Setting = (function (Component$$1) {
+  function Setting(props) {
+    Component$$1.call(this, props);
+    
+    this.state = {
+      isOpen: false,
+      mdFontSize: SettingData.get('mdFontSize') || 14
+    };
+    
+  }
+
+  if ( Component$$1 ) Setting.__proto__ = Component$$1;
+  Setting.prototype = Object.create( Component$$1 && Component$$1.prototype );
+  Setting.prototype.constructor = Setting;
+  
+  Setting.prototype.changeOpen = function changeOpen (isOpen, e) {
+    e.stopPropagation();
+    this.setState({ isOpen: isOpen });
+  };
+
+  Setting.prototype.renderItem = function renderItem () {
+    var this$1 = this;
+
+    var ref = this.props;
+    var type = ref.type;
+    if (!type || !type.length) { return preact.h( 'span', null ); }
+    return preact.h( 'div', null,
+      type.map(function (item) {
+          if (this$1['render_' + item.toLowerCase()]) {
+            return this$1['render_' + item.toLowerCase()]();
+          }
+          return preact.h( 'span', null );
+        })
+    )
+  };
+
+  Setting.prototype.render_mdfontsize = function render_mdfontsize () {
+    var nowValue = this.state.mdFontSize;
+    return preact.h( 'div', { class: "settingItem" },
+      preact.h( 'div', { class: "settingItemTitle" }, lang('fontSize')),
+      preact.h( 'div', { class: "settingFontSizeContainer" },
+        preact.h( 'div', { class: "settingFontSizeContainerBtn add", onClick: this.change_mdfontsize.bind(this, 1) }),
+        preact.h( 'div', { class: "settingFontSizeContainerBtn jian", onClick: this.change_mdfontsize.bind(this, -1) }),
+        nowValue
+      )
+    )
+  };
+
+  Setting.prototype.change_mdfontsize = function change_mdfontsize (zl) {
+    var newValue = Math.ceil(this.state.mdFontSize - 0 + zl);
+    if (newValue < 12 || newValue > 72) { return; }
+    this.props.onChange && this.props.onChange('mdFontSize', newValue);
+    SettingData.set('mdFontSize', newValue);
+    this.setState({
+      mdFontSize: newValue
+    });
+  };
+
+  Setting.prototype.render = function render$$1 () {
+    
+    var ref = this.props;
+    var type = ref.type;
+    if (!type || !type.length) { return preact.h( 'span', null ); }
+
+    var ref$1 = this.state;
+    var isOpen = ref$1.isOpen;
+
+    return preact.h( 'div', { class: "setting" },
+      preact.h( 'div', { class: "settingOpenBtn", onClick: this.changeOpen.bind(this, true) }),
+      isOpen && preact.h( 'div', { class: "settingPage" },
+        preact.h( 'div', { class: "settingContainer" },
+          preact.h( 'div', { class: "close" },
+            preact.h( 'span', { onClick: this.changeOpen.bind(this, false) }, lang('close'))
+          ),
+          preact.h( 'div', { class: "title" }, lang('settingTitle')),
+          this.renderItem()
+        )
+      )
+    );
+  };
+
+  return Setting;
 }(Component));
 
 'use strict';
@@ -4024,7 +4120,8 @@ var MdRender = (function (Component$$1) {
     Component$$1.call(this, props);
     this.state = {
       toc: {},
-      date: Date.now()
+      date: Date.now(),
+      mdFontSize: SettingData.get('mdFontSize') || 14
     };
 
     
@@ -4041,6 +4138,11 @@ var MdRender = (function (Component$$1) {
     });
   };
 
+  MdRender.prototype.settingChange = function settingChange (type, value) {
+    this.setState(( obj = {}, obj[type] = value, obj));
+    var obj;
+  };
+
   MdRender.prototype.render = function render$$1 () {
     var ref = this.state;
     var toc = ref.toc;
@@ -4049,7 +4151,8 @@ var MdRender = (function (Component$$1) {
     var repo = ref$1.repo;
     return preact.h( 'div', { class: "post" },
         preact.h( Toc$2, { data: toc }),
-        data.data && preact.h( TextRender, { repo: repo, data: data.data, fullPath: data.fullPath, toc: this.handleTocChange.bind(this, 0), getRemoteByPath: this.props.getRemoteByPath })
+        preact.h( Setting, { type: ['mdFontSize', 'autoScroll'], onChange: this.settingChange.bind(this) }),
+        data.data && preact.h( TextRender, { repo: repo, fontSize: this.state.mdFontSize, data: data.data, fullPath: data.fullPath, toc: this.handleTocChange.bind(this, 0), getRemoteByPath: this.props.getRemoteByPath })
     );
   };
 

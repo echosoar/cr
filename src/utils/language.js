@@ -61,6 +61,10 @@ const data = {
     en: 'Tree',
     cn: '文件树'
   },
+  fontSize: {
+    en: 'Font Size',
+    cn: '文字大小'
+  },
   hash: {
     en: 'Hash',
     cn: '哈希值'
@@ -73,6 +77,10 @@ const data = {
     en: 'Recent Open',
     cn: '最近打开'
   },
+  settingTitle:{
+    en: 'Setting',
+    cn: '设置'
+  },
   toc: {
     en: 'TOC',
     cn: '目录'
@@ -80,7 +88,7 @@ const data = {
 }
 
 let lang = (type) => {
-  let language = SettingData.get['crlang'] || 'cn';
+  let language = SettingData.get('crlang') || 'cn';
   return data[type] && data[type][language] || type || '';
 }
 export default lang;

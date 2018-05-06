@@ -6,6 +6,7 @@ let set = (name, value) => {
     settingData = {};
   }
   settingData[name] = value;
+  window.localStorage.setItem('crSetting', JSON.stringify(settingData));
 }
 
 let get = (name) => {

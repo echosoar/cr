@@ -2,6 +2,8 @@
 import { Component } from 'preact'; /** @jsx h */
 import Toc from './toc.js';
 import TextRender from './text.js';
+import SettingData from '_/utils/setting.js';
+import Setting from '_/components/setting/index.js';
 
 class MdRender extends Component {
 
@@ -9,7 +11,8 @@ class MdRender extends Component {
     super(props);
     this.state = {
       toc: {},
-      date: Date.now()
+      date: Date.now(),
+      mdFontSize: SettingData.get('mdFontSize') || 14
     }
 
     
@@ -22,12 +25,19 @@ class MdRender extends Component {
     });
   }
 
+  settingChange(type, value) {
+    this.setState({
+      [type]: value
+    });
+  }
+
   render() {
-    let { toc } = this.state;
+    let { toc, mdFontSize } = this.state;
     let { data, repo } = this.props;
     return <div class="post">
         <Toc data={ toc }/>
-        { data.data && <TextRender repo={repo} data={data.data} fullPath={data.fullPath} toc={this.handleTocChange.bind(this, 0)} getRemoteByPath={this.props.getRemoteByPath} /> }
+        <Setting type={['mdFontSize', 'autoScroll']} onChange={this.settingChange.bind(this)} />
+        { data.data && <TextRender repo={repo} fontSize={this.state.mdFontSize} data={data.data} fullPath={data.fullPath} toc={this.handleTocChange.bind(this, 0)} getRemoteByPath={this.props.getRemoteByPath} /> }
     </div>;
   }
 }

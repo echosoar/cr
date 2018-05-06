@@ -396,8 +396,8 @@ a {
 }
 .mdtextrender .githubhref {
   display: inline-block;
-  width: 12px;
-  height: 12px;
+  width: 1em;
+  height: 1em;
   margin-right: 2px;
   border: 0;
   vertical-align: middle;
@@ -869,6 +869,120 @@ a {
 }
 .mdtextrender .hljs-emphasis {
   font-style: italic;
+}
+.setting .settingOpenBtn {
+  position: fixed;
+  z-index: 4;
+  top: 0;
+  right: 0px;
+  line-height: 36px;
+  width: 36px;
+  box-sizing: border-box;
+  height: 36px;
+  border-left: 1px solid #eee;
+}
+.setting .settingOpenBtn::before {
+  content: " ";
+  display: block;
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  width: 16px;
+  height: 16px;
+  background: url("../static/images/setting.png") 50% / contain no-repeat;
+}
+.setting .settingPage {
+  position: fixed;
+  z-index: 5;
+  top: 0;
+  right: 0px;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+}
+.setting .settingPage .settingContainer {
+  position: fixed;
+  right: 0;
+  height: 100vh;
+  width: 60%;
+  max-width: 320px;
+  box-sizing: border-box;
+  padding: 10px;
+  padding-top: 36px;
+  background: #fff;
+}
+.setting .settingPage .settingContainer .title {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 14px;
+  height: 36px;
+  line-height: 36px;
+  color: #ffffff;
+  background: #63972f;
+}
+.setting .settingPage .settingContainer .close {
+  width: 32px;
+  height: 72px;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translate(-100%, -50%);
+  background: #eee;
+  border-radius: 3px 0 0 3px;
+  text-align: center;
+}
+.setting .settingPage .settingContainer .close span {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: block;
+  transform-origin: right top;
+  transform: rotate(-90deg) translate(0, -100%);
+  height: 32px;
+  line-height: 32px;
+  color: #999;
+  font-size: 12px;
+  width: 72px;
+  text-align: center;
+}
+.setting .settingPage .settingContainer .settingItem {
+  position: relative;
+  margin-top: 10px;
+}
+.setting .settingPage .settingContainer .settingItem .settingItemTitle {
+  padding-bottom: 6px;
+  line-height: 16px;
+  font-size: 13px;
+  color: #999;
+}
+.setting .settingPage .settingContainer .settingItem .settingFontSizeContainer {
+  position: relative;
+  height: 32px;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  line-height: 30px;
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+  padding: 0 42px;
+}
+.setting .settingPage .settingContainer .settingItem .settingFontSizeContainer .settingFontSizeContainerBtn {
+  position: absolute;
+  height: 32px;
+  width: 42px;
+  top: 0;
+  cursor: pointer;
+  outline: none;
+}
+.setting .settingPage .settingContainer .settingItem .settingFontSizeContainer .settingFontSizeContainerBtn.add {
+  right: 0;
+}
+.setting .settingPage .settingContainer .settingItem .settingFontSizeContainer .settingFontSizeContainerBtn.jian {
+  left: 0;
 }
 .commoncode {
   font-size: 12px;

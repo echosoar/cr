@@ -16,6 +16,7 @@ class TextRender extends Component {
   }
 
   shouldComponentUpdate(newProps) {
+    if (newProps.fontSize != this.props.fontSize) return true;
     if (newProps.data == this.props.data) return false;
   }
 
@@ -153,9 +154,9 @@ class TextRender extends Component {
 
   render() {
     this.toc = [];
-    let {data} = this.props;
+    let { data, fontSize } = this.props;
     data = this.formatData(data);
-    return <div class="mdtextrender" id="mdtextrender" dangerouslySetInnerHTML={{__html: marked(data, { renderer: this.renderer })}} />;
+    return <div class="mdtextrender" style={{fontSize: fontSize + 'px'}} id="mdtextrender" dangerouslySetInnerHTML={{__html: marked(data, { renderer: this.renderer })}} />;
   }
 }
 
