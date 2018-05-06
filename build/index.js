@@ -4088,6 +4088,32 @@ var Setting = (function (Component$$1) {
     });
   };
 
+  Setting.prototype.render_language = function render_language () {
+    var this$1 = this;
+
+    var nowLang = SettingData.get('crlang') || 'cn';
+    return preact.h( 'div', { class: "settingItem" },
+      preact.h( 'div', { class: "settingItemTitle" }, "Language"),
+      [{
+          title: '中文',
+          value: 'cn'
+        }, {
+          title: 'English',
+          value: 'en'
+        }].map(function (item) {
+          return preact.h( 'div', { class: "settingLanguageBtn", onClick: this$1.change_language.bind(this$1, item.value) },
+            item.title,
+            item.value == nowLang && preact.h( 'div', { class: "settingLanguageBtnSelected" })  
+          );
+        })
+    )
+  };
+
+  Setting.prototype.change_language = function change_language (lang$$1) {
+    SettingData.set('crlang', lang$$1);
+    location.reload();
+  };
+
   Setting.prototype.render = function render$$1 () {
     
     var ref = this.props;
@@ -9949,6 +9975,7 @@ var RepoList = (function (Component$$1) {
     var repoList = Storage.RepoList();
     return preact.h( 'div', { class: "repoList" },
       preact.h( 'div', { class: "title" }, lang('cr')),
+      preact.h( Setting, { type: ['language'] }),
       preact.h( 'a', { href: "#/add", class: "add" }, "+ ", lang('addRepo')),
       repoList && repoList.length ? this.getList(repoList) : this.introduction()
     )

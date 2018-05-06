@@ -58,6 +58,32 @@ class Setting extends Component {
     });
   }
 
+  render_language() {
+    let nowLang = SettingData.get('crlang') || 'cn';
+    return <div class="settingItem">
+      <div class="settingItemTitle">Language</div>
+      {
+        [{
+          title: '中文',
+          value: 'cn'
+        }, {
+          title: 'English',
+          value: 'en'
+        }].map(item => {
+          return <div class="settingLanguageBtn" onClick={this.change_language.bind(this, item.value)}>
+            { item.title }
+            { item.value == nowLang && <div class="settingLanguageBtnSelected" />}  
+          </div>;
+        })
+      }
+    </div>
+  }
+
+  change_language(lang) {
+    SettingData.set('crlang', lang);
+    location.reload();
+  }
+
   render() {
     
     let { type } = this.props;

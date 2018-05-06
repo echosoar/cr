@@ -36,9 +36,9 @@ https://cr.js.org
 - [ ] Delete branch
 - [ ] Setting  
   - [ ] Language           
-  - [ ] Font size
+  - [x] Font size
   - [ ] Background color
-- [ ] Load the newest branch
+- [ ] Load the newepst branch
 - [ ] JSON format
 - [ ] Code Comment by line index
 - [x] Add introduction to empty home page

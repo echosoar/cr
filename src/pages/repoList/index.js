@@ -3,6 +3,7 @@
 import { Component } from 'preact'; /** @jsx h */
 import TimeFormat from '_/utils/timeFormat.js';
 import Storage from '_/utils/storage.js';
+import Setting from '_/components/setting/index.js';
 import Language from '_/utils/language.js';
 import './index.less';
 
@@ -54,6 +55,7 @@ class RepoList extends Component {
     let repoList = Storage.RepoList();
     return <div class="repoList">
       <div class="title">{ Language('cr') }</div>
+      <Setting type={['language']} />
       <a href="#/add" class="add">+ { Language('addRepo') }</a>
       {
         repoList && repoList.length ? this.getList(repoList) : this.introduction()
