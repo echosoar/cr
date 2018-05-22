@@ -1163,6 +1163,14 @@ var data = {
     en: 'Please enter the repositorie\'s address \nE.g: https://github.com/echosoar/cr',
     cn: '请输入github仓库地址 \n例如: https://github.com/echosoar/cr'
   },
+  autoScroll: {
+    en: 'Automatic scrolling',
+    cn: '自动滚屏'
+  },
+  autoScrollClose: {
+    en: 'Closed, click to use',
+    cn: '已关闭，点击使用'
+  },
   back: {
     en: 'Back',
     cn: '返回'
@@ -1214,6 +1222,36 @@ var data = {
   hash: {
     en: 'Hash',
     cn: '哈希值'
+  },
+  introduction: {
+    en: preact.h( 'div', { class: "introduction" },
+      preact.h( 'div', { class: "introductionTitle" }, "Guidelines for use"),
+      preact.h( 'div', { class: "paragraph" }, "CR is a Web application that helps you read Github code more easily and comfortably."),
+      preact.h( 'div', { class: "paragraph bold" }, "How to use？"),
+      preact.h( 'div', { class: "howTo" },
+        preact.h( 'div', { class: "paragraph list" }, "1. Click \"Add Repo\" to add a Git repository to this application"),
+        preact.h( 'div', { class: "paragraph list" }, "2. CR will help you pull his branch, recent Commit, or you manually enter the version of the SHA string, from which you can choose a branch of code you wish to read.")
+      ),
+      preact.h( 'div', { class: "paragraph" }, "After a simple two-step process above, you can happily read the code on your mobile device."),
+      preact.h( 'div', { class: "paragraph" }, "Currently, CR has made special optimizations for Markdown files, and the code has also been adapted to read on the mobile."),
+      preact.h( 'div', { class: "paragraph bold" }, "If you have a better idea, you can submit an issue by clicking on the Github link at the bottom of the page. If you like this project you can give star, and you are interested in participating in this project."),
+      preact.h( 'div', { class: "paragraph" }, "In addition, you can directly share the code you are reading to others by link. For example, directly opening the link below will automatically add the CR code to your reading list."),
+      preact.h( 'a', { href: "https://cr.js.org/#/code/echosoar/cr", target: "_blank" }, "https://cr.js.org/#/code/echosoar/cr")
+    ),
+    cn: preact.h( 'div', { class: "introduction" },
+      preact.h( 'div', { class: "introductionTitle" }, "使用指引"),
+      preact.h( 'div', { class: "paragraph" }, "CR是一个无后端的Web应用，能够帮助你更加方便、舒适地阅读Github的代码。"),
+      preact.h( 'div', { class: "paragraph bold" }, "如何使用？"),
+      preact.h( 'div', { class: "howTo" },
+        preact.h( 'div', { class: "paragraph list" }, "1. 点击上方的 “添加新仓库” 按钮添加一个Git仓库到本应用。"),
+        preact.h( 'div', { class: "paragraph list" }, "2. CR会帮您拉取他的分支、最近Commit，或者是你手动输入版本的SHA字符串，你可以从中选取一个你希望阅读的代码分支。")
+      ),
+      preact.h( 'div', { class: "paragraph" }, "经过上面简单的两步你就可以愉快地在移动设备（手机、平板）上面阅读代码了。"),
+      preact.h( 'div', { class: "paragraph" }, "目前CR对于Markdown文件做了特殊的优化展示，对于代码也进行了适合在移动端阅读的适配。"),
+      preact.h( 'div', { class: "paragraph bold" }, "如果有更好的想法可以点击页面底部的Github链接提交 issue，如果喜欢这个项目可以给予 star ，有兴趣可以一起参与这个项目。"),
+      preact.h( 'div', { class: "paragraph" }, "另外你可以直接通过链接分享你正在阅读的代码给其他人，比如直接打开下面的链接就会自动添加 CR 的代码到你的阅读列表中"),
+      preact.h( 'a', { href: "https://cr.js.org/#/code/echosoar/cr", target: "_blank" }, "https://cr.js.org/#/code/echosoar/cr")
+    )
   },
   openLink: {
     en: 'Open Link',
@@ -4036,6 +4074,7 @@ var Setting = (function (Component$$1) {
     
     this.state = {
       isOpen: false,
+      autoScroll: false,
       mdFontSize: SettingData.get('mdFontSize') || 14
     };
     
@@ -4072,7 +4111,7 @@ var Setting = (function (Component$$1) {
       preact.h( 'div', { class: "settingItemTitle" }, lang('fontSize')),
       preact.h( 'div', { class: "settingFontSizeContainer" },
         preact.h( 'div', { class: "settingFontSizeContainerBtn add", onClick: this.change_mdfontsize.bind(this, 1) }),
-        preact.h( 'div', { class: "settingFontSizeContainerBtn jian", onClick: this.change_mdfontsize.bind(this, -1) }),
+        preact.h( 'div', { class: "settingFontSizeContainerBtn subtract", onClick: this.change_mdfontsize.bind(this, -1) }),
         nowValue
       )
     )
@@ -4114,6 +4153,20 @@ var Setting = (function (Component$$1) {
     location.reload();
   };
 
+  Setting.prototype.render_autoscroll = function render_autoscroll () {
+    return preact.h( 'div', { class: "settingItem" },
+      preact.h( 'div', { class: "settingItemTitle" }, lang('autoScroll')),
+      preact.h( 'div', { class: "settingItemAutoScroll", onClick: this.change_autoscroll.bind(this) },
+        lang('autoScrollClose'),
+        preact.h( 'div', { class: "settingItemAutoScrollBtn" })
+      )
+    )
+  };
+
+  Setting.prototype.change_autoscroll = function change_autoscroll () {
+    this.setState({ isOpen: false, autoScroll: true });
+  };
+
   Setting.prototype.render = function render$$1 () {
     
     var ref = this.props;
@@ -4122,6 +4175,7 @@ var Setting = (function (Component$$1) {
 
     var ref$1 = this.state;
     var isOpen = ref$1.isOpen;
+    var autoScroll = ref$1.autoScroll;
 
     return preact.h( 'div', { class: "setting" },
       preact.h( 'div', { class: "settingOpenBtn", onClick: this.changeOpen.bind(this, true) }),
@@ -4133,7 +4187,12 @@ var Setting = (function (Component$$1) {
           preact.h( 'div', { class: "title" }, lang('settingTitle')),
           this.renderItem()
         )
-      )
+      ),
+      autoScroll && preact.h( 'div', { class: "settingAutoScroll" },
+          preact.h( 'div', { class: "settingAutoScrollContainer" }
+          
+        )
+        )
     );
   };
 
@@ -4177,7 +4236,7 @@ var MdRender = (function (Component$$1) {
     var repo = ref$1.repo;
     return preact.h( 'div', { class: "post" },
         preact.h( Toc$2, { data: toc }),
-        preact.h( Setting, { type: ['mdFontSize', 'autoScroll'], onChange: this.settingChange.bind(this) }),
+        preact.h( Setting, { type: ['mdFontSize', 'autoScroll', 'night'], onChange: this.settingChange.bind(this) }),
         data.data && preact.h( TextRender, { repo: repo, fontSize: this.state.mdFontSize, data: data.data, fullPath: data.fullPath, toc: this.handleTocChange.bind(this, 0), getRemoteByPath: this.props.getRemoteByPath })
     );
   };
@@ -9940,36 +9999,6 @@ var RepoList = (function (Component$$1) {
       }));
   };
 
-  RepoList.prototype.introduction = function introduction () {
-    return preact.h( 'div', { class: "introduction" },
-      preact.h( 'div', { class: "introductionTitle" }, "Guidelines for use"),
-      preact.h( 'div', { class: "paragraph" }, "CR is a Web application that helps you read Github code more easily and comfortably."),
-      preact.h( 'div', { class: "paragraph bold" }, "How to use？"),
-      preact.h( 'div', { class: "howTo" },
-        preact.h( 'div', { class: "paragraph list" }, "1. Click \"Add Repo\" in the upper right corner to add a Git repository to this application"),
-        preact.h( 'div', { class: "paragraph list" }, "2. CR will help you pull his branch, recent Commit, or you manually enter the version of the SHA string, from which you can choose a branch of code you wish to read.")
-      ),
-      preact.h( 'div', { class: "paragraph" }, "After a simple two-step process above, you can happily read the code on your mobile device."),
-      preact.h( 'div', { class: "paragraph" }, "Currently, CR has made special optimizations for Markdown files, and the code has also been adapted to read on the mobile."),
-      preact.h( 'div', { class: "paragraph bold" }, "If you have a better idea, you can submit an issue by clicking on the Github link at the bottom of the page. If you like this project you can give star, and you are interested in participating in this project."),
-      preact.h( 'div', { class: "paragraph" }, "In addition, you can directly share the code you are reading to others by link. For example, directly opening the link below will automatically add the CR code to your reading list."),
-      preact.h( 'a', { href: "https://cr.js.org/#/code/echosoar/cr", target: "_blank" }, "https://cr.js.org/#/code/echosoar/cr"),
-
-      preact.h( 'div', { class: "introductionTitle" }, "使用指引"),
-      preact.h( 'div', { class: "paragraph" }, "CR是一个无后端的Web应用，能够帮助你更加方便、舒适地阅读Github的代码。"),
-      preact.h( 'div', { class: "paragraph bold" }, "如何使用？"),
-      preact.h( 'div', { class: "howTo" },
-        preact.h( 'div', { class: "paragraph list" }, "1. 点击右上角的 “Add Repo” 添加一个Git仓库到本应用。"),
-        preact.h( 'div', { class: "paragraph list" }, "2. CR会帮您拉取他的分支、最近Commit，或者是你手动输入版本的SHA字符串，你可以从中选取一个你希望阅读的代码分支。")
-      ),
-      preact.h( 'div', { class: "paragraph" }, "经过上面简单的两步你就可以愉快地在移动设备（手机、平板）上面阅读代码了。"),
-      preact.h( 'div', { class: "paragraph" }, "目前CR对于Markdown文件做了特殊的优化展示，对于代码也进行了适合在移动端阅读的适配。"),
-      preact.h( 'div', { class: "paragraph bold" }, "如果有更好的想法可以点击页面底部的Github链接提交 issue，如果喜欢这个项目可以给予 star ，有兴趣可以一起参与这个项目。"),
-      preact.h( 'div', { class: "paragraph" }, "另外你可以直接通过链接分享你正在阅读的代码给其他人，比如直接打开下面的链接就会自动添加 CR 的代码到你的阅读列表中"),
-      preact.h( 'a', { href: "https://cr.js.org/#/code/echosoar/cr", target: "_blank" }, "https://cr.js.org/#/code/echosoar/cr")
-    );
-  };
-
   RepoList.prototype.render = function render$$1 () {
 
     var repoList = Storage.RepoList();
@@ -9977,7 +10006,7 @@ var RepoList = (function (Component$$1) {
       preact.h( 'div', { class: "title" }, lang('cr')),
       preact.h( Setting, { type: ['language'] }),
       preact.h( 'a', { href: "#/add", class: "add" }, "+ ", lang('addRepo')),
-      repoList && repoList.length ? this.getList(repoList) : this.introduction()
+      repoList && repoList.length ? this.getList(repoList) : lang('introduction')
     )
   };
 

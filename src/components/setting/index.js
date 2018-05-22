@@ -11,6 +11,7 @@ class Setting extends Component {
     
     this.state = {
       isOpen: false,
+      autoScroll: false,
       mdFontSize: SettingData.get('mdFontSize') || 14
     }
     
@@ -42,7 +43,7 @@ class Setting extends Component {
       <div class="settingItemTitle">{ Language('fontSize') }</div>
       <div class="settingFontSizeContainer">
         <div class="settingFontSizeContainerBtn add" onClick={this.change_mdfontsize.bind(this, 1)}></div>
-        <div class="settingFontSizeContainerBtn jian" onClick={this.change_mdfontsize.bind(this, -1)}></div>
+        <div class="settingFontSizeContainerBtn subtract" onClick={this.change_mdfontsize.bind(this, -1)}></div>
         { nowValue }
       </div>
     </div>
@@ -84,12 +85,26 @@ class Setting extends Component {
     location.reload();
   }
 
+  render_autoscroll() {
+    return <div class="settingItem">
+      <div class="settingItemTitle">{ Language('autoScroll') }</div>
+      <div class="settingItemAutoScroll" onClick={this.change_autoscroll.bind(this)}>
+        { Language('autoScrollClose') }
+        <div class="settingItemAutoScrollBtn"></div>
+      </div>
+    </div>
+  }
+
+  change_autoscroll() {
+    this.setState({ isOpen: false, autoScroll: true });
+  }
+
   render() {
     
     let { type } = this.props;
     if (!type || !type.length) return <span />;
 
-    let { isOpen } = this.state;
+    let { isOpen, autoScroll } = this.state;
 
     return <div class="setting">
       <div class="settingOpenBtn" onClick={this.changeOpen.bind(this, true)}></div>
@@ -104,6 +119,13 @@ class Setting extends Component {
           }
         </div>
       </div>}
+      {
+        autoScroll && <div class="settingAutoScroll">
+          <div class="settingAutoScrollContainer">
+          
+        </div>
+        </div>
+      }
     </div>;
   }
 }

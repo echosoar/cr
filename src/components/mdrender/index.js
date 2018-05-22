@@ -36,7 +36,7 @@ class MdRender extends Component {
     let { data, repo } = this.props;
     return <div class="post">
         <Toc data={ toc }/>
-        <Setting type={['mdFontSize', 'autoScroll']} onChange={this.settingChange.bind(this)} />
+        <Setting type={['mdFontSize', 'autoScroll', 'night']} onChange={this.settingChange.bind(this)} />
         { data.data && <TextRender repo={repo} fontSize={this.state.mdFontSize} data={data.data} fullPath={data.fullPath} toc={this.handleTocChange.bind(this, 0)} getRemoteByPath={this.props.getRemoteByPath} /> }
     </div>;
   }

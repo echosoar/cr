@@ -972,7 +972,7 @@ a {
 }
 .setting .settingPage .settingContainer .settingItem .settingFontSizeContainer .settingFontSizeContainerBtn {
   position: absolute;
-  height: 32px;
+  height: 30px;
   width: 42px;
   top: 0;
   cursor: pointer;
@@ -980,9 +980,11 @@ a {
 }
 .setting .settingPage .settingContainer .settingItem .settingFontSizeContainer .settingFontSizeContainerBtn.add {
   right: 0;
+  background: url('../static/images/add.png') center / 40% no-repeat;
 }
-.setting .settingPage .settingContainer .settingItem .settingFontSizeContainer .settingFontSizeContainerBtn.jian {
+.setting .settingPage .settingContainer .settingItem .settingFontSizeContainer .settingFontSizeContainerBtn.subtract {
   left: 0;
+  background: url('../static/images/subtract.png') center / 40% no-repeat;
 }
 .setting .settingPage .settingContainer .settingItem .settingLanguageBtn {
   position: relative;
@@ -1006,6 +1008,46 @@ a {
   border-radius: 50%;
   right: 8px;
   background: #396 url("../static/images/ok.png") center / 60% no-repeat;
+}
+.setting .settingPage .settingContainer .settingItem .settingItemAutoScroll {
+  position: relative;
+  height: 32px;
+  line-height: 32px;
+  font-size: 13px;
+  box-sizing: border-box;
+  border-radius: 3px;
+  padding: 0 6px;
+  background: #f5f5f5;
+  color: #666;
+}
+.setting .settingPage .settingContainer .settingItem .settingItemAutoScroll .settingItemAutoScrollBtn {
+  position: absolute;
+  right: 6px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  width: 40px;
+  border-radius: 12px;
+  height: 20px;
+  top: 6px;
+}
+.setting .settingPage .settingContainer .settingItem .settingItemAutoScroll .settingItemAutoScrollBtn::before {
+  content: ' ';
+  position: absolute;
+  top: 1px;
+  left: 2px;
+  height: 16px;
+  width: 16px;
+  border-radius: 8px;
+  background: #ccc;
+}
+.setting .settingAutoScroll {
+  position: fixed;
+  z-index: 15;
+  top: 0;
+  right: 0px;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
 }
 .commoncode {
   font-size: 12px;

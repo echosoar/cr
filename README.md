@@ -35,9 +35,9 @@ https://cr.js.org
 - [ ] Delete repo
 - [ ] Delete branch
 - [ ] Setting  
-  - [ ] Language           
+  - [x] Language           
   - [x] Font size
-  - [ ] Background color
+  - [ ] Night mode
 - [ ] Load the newepst branch
 - [ ] JSON format
 - [ ] Code Comment by line index
@@ -46,6 +46,5 @@ https://cr.js.org
 - [x] Rewrite style
 - [ ] Loading
 - [ ] Auto scroll
-- [ ] Night mode
 
 © 2018 echosoar
