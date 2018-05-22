@@ -96,7 +96,7 @@ class Setting extends Component {
   }
 
   change_autoscroll() {
-    this.setState({ isOpen: false, autoScroll: true });
+    this.setState({ isOpen: false, autoScroll: false });
   }
 
   render() {

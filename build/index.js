@@ -4164,7 +4164,7 @@ var Setting = (function (Component$$1) {
   };
 
   Setting.prototype.change_autoscroll = function change_autoscroll () {
-    this.setState({ isOpen: false, autoScroll: true });
+    this.setState({ isOpen: false, autoScroll: false });
   };
 
   Setting.prototype.render = function render$$1 () {
