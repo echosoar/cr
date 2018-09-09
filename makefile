@@ -19,7 +19,6 @@ CCONF = "$(ECHOSOAR)cconf/master/"
 type = none
 
 all:
-	make up
 	make ps
 
 autoGit:
