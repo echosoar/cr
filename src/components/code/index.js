@@ -8,7 +8,7 @@ import GlobalCache from '_/utils/globalCache.js';
 import libbase64 from 'libbase64';
 import './index.less';
 
-let SupportFileReg = /(\.(?:c|cs|css|gitignore|go|h|html|java|js|json|jsx|m|map|md|php|podspec|ts|txt|vue|xml|xtpl|yml)|cname|license|makefile|rc)$/i;
+let SupportFileReg = /(\.(?:c|cpp|cs|css|gitignore|go|h|html|java|js|json|jsx|m|map|md|php|podspec|ts|txt|vue|xml|xtpl|yml)|cname|license|makefile|rc|rs)$/i;
 
 class Code extends Component {
 
